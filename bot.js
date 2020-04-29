@@ -5,13 +5,9 @@ const client = new Discord.Client();
 var botID;
 
 client.on('ready', () => {
-    client.user.setPresence({
-        game: {
-            name: 'your Soul!',
-            type: 'WATCHING'
-        },
-        status: 'online'
-    });
+    client.user.setPresence({ activity: { type: 'WATCHING', name: 'your Followers!' }, status: 'online' })
+        //.then(console.log) //For ClientPresence log
+        .catch(console.error);   
     console.log(`Logged in as ${client.user.tag}!`);
     
     //Collect Bot ID
