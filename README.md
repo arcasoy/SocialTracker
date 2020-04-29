@@ -1,6 +1,6 @@
 # SocialTracker
 
-[![Personal Discord](http://www.discord.gg/f7bk4yU)](http://www.discord.gg/f7bk4yU)
+[![Personal Discord]()](http://www.discord.gg/f7bk4yU)
 
 ---
 
