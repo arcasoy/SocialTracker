@@ -18,4 +18,6 @@ Goal: To track YOUR social media growth and update your team through beautiful g
 ## Future Features:
 * Plotting YOUR Data (Obtained through Google Sheets)
 * Sending Growth Updates to Your Desired Channels
-* 
+* Tracking your Instagram Data
+* Database Integration
+* Use APIs to expand to Youtube, Twitter, and Twitch Data
