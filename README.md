@@ -1,6 +1,6 @@
 # SocialTracker
 
-[![Personal Discord](https://discordapp.com/assets/f8389ca1a741a115313bede9ac02e2c0.svg)](http://www.discord.gg/f7bk4yU)
+[![Personal Discord](http://www.discord.gg/f7bk4yU)](http://www.discord.gg/f7bk4yU)
 
 ---
 
