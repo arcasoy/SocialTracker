@@ -1,6 +1,7 @@
 # SocialTracker
 
-[![Personal Discord]()](http://www.discord.gg/f7bk4yU)
+[![Discord](https://img.shields.io/badge/Discord-Join-blue)](http://www.discord.gg/f7bk4yU)
+[![Portfolio](https://img.shields.io/badge/Portfolio-Read-yellow)](http://www.discord.gg/f7bk4yU)
 
 ---
 
