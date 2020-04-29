@@ -12,7 +12,6 @@ client.on('ready', () => {
     
     //Collect Bot ID
     botID = client.user.id;
-    //console.log(botID);
 });
 
 client.on('message', msg => {
