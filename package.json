@@ -8,15 +8,16 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/TeamDamagedSouls/TDS-Discord-Bot.git"
+    "url": "git+https://github.com/arcasoy/SocialTracker.git"
   },
   "author": "Alexander Arcasoy",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/TeamDamagedSouls/TDS-Discord-Bot/issues"
+    "url": "https://github.com/arcasoy/SocialTracker/issues"
   },
-  "homepage": "https://github.com/TeamDamagedSouls/TDS-Discord-Bot#readme",
+  "homepage": "https://github.com/arcasoy/SocialTracker#readme",
   "dependencies": {
-    "discord.js": "^12.1.1"
+    "discord.js": "^12.1.1",
+    "google-spreadsheet": "^3.0.11"
   }
 }
