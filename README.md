@@ -12,7 +12,6 @@ Goal: To track YOUR social media growth and update your team through beautiful g
 ---
 
 ## Current Features:
-* Ping! Pong!
 * Bot information when mentioned
 
 ## Future Features:
