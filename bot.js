@@ -14,23 +14,24 @@ client.on('ready', () => {
     console.log(`Logged in as ${client.user.tag}!`);
 });
 
-//Respond to messages in a server
+//Respond to general messages
 client.on('message', msg => {
-    //@SoulCatcher for bot information
+    //@SocialTracker for bot information
     if (msg.mentions.users.first() === client.user) {
         msg.reply(`Hi ${msg.author.username} I'm SocialTracker, the Discord Bot developed to help you grow your socials!\nCheck out my source code and plans here: https://github.com/arcasoy/SocialTracker.\nFeel free to contact <@166055639322329088> if you'd like to help make me better!`);
     }   
 });
 
-//collect data
+//Respond to messages sent by AX
 client.on('message', msg => {
-    if (msg.content === "analyze") {
-        sheetsData(function(dataObject) {
-            //expand this to all indicies
-            var dataArray = dataObject.formattedValue;
-            console.log(dataObject[1][1].formattedValue);
-        });
-    }
+    client.users.fetch('166055639322329088').then(result => {
+        console.log("AX has sent a message! Must respond!");
+        if (result === msg.author) {
+            sheetsData(function(dataObject) {
+                console.log(dataObject);
+            });
+        };
+    });
 });
 
 async function sheetsData(callback) {
@@ -44,20 +45,23 @@ async function sheetsData(callback) {
     const sheetInsta = doc.sheetsByIndex[0]; // set instagram sheet
     await sheetInsta.loadCells(); // load all cells on instagram sheet
     
-    //make this more dynamic so it adjusts to the sheet
-    var i = 54,
-        j = 4,
-        data = [];
+    //determining row count
+    const filledCells = sheetInsta.cellStats.nonEmpty;
+    var columns = 4; //populated columns, figure out a way to dynamically get this
+    var rows = filledCells/columns;
 
-    for (i = 0; i < 54; i++) {
-        data[i] = sheetInsta.getCell(i, j);
-        for (j = 0; j < 4; j++) {
-            data[i][j] = sheetInsta.getCell(i, j);
+    let data = [];
+    let rowArr = [];
+
+    for (var i = 0; i < rows; i++) {
+        if (rowArr.length === 4) {
+            data.push(rowArr);
+            rowArr = [];
+        }
+        for (var j = 0; j < columns; j++) {
+            rowArr.push(sheetInsta.getCell(i, j).formattedValue);
         }
     }
-
-    //console.log(data);
-
     callback(data);
 }
 
