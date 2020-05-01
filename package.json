@@ -19,6 +19,6 @@
   "dependencies": {
     "discord.js": "^12.1.1",
     "google-spreadsheet": "^3.0.11",
-    "plotly.js-dist": "^1.53.0"
+    "plotly": "^1.0.6"
   }
 }
