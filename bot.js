@@ -30,25 +30,25 @@ client.on('message', msg => {
     client.users.fetch('166055639322329088').then(result => {
         console.log("AX has sent a message! Must respond!");
         if (result === msg.author && msg.content === "analyze") {
-            sheetsData(function(dataObject) {
-                console.log(dataObject);
+            sheetsData(function(dataArray) {
+                console.log(dataArray);
             })}
         else if (result === msg.author && msg.content === "raw data") {
-            sheetsData(function(dataObject) {
-                msg.reply(dataObject);
+            sheetsData(function(dataArray) {
+                msg.reply(dataArray);
             });
         }
         else if (result === msg.author && msg.content === "scatter") {
             console.log("In-Development");
-            sheetsData(function(dataObject) {
-                scatter();//dataObject, function(image) {
+            sheetsData(function(dataArray) {
+                scatter(dataArray, function(scatterPlotFilePath) {
                     //send image to channel once created
-                    //msg.reply({files: [image]});
-                    //console.log("out in the world");
+                    msg.reply({files: [scatterPlotFilePath]});
                 });
-            };
-        });
+            });
+        };
     });
+});
 
 async function sheetsData(callback) {
     // spreadsheet key is the long id in the sheets URL
@@ -81,24 +81,49 @@ async function sheetsData(callback) {
     callback(data);
 }
 
-function scatter() {    
+function scatter(data, callback) { 
+    var scatterPlotFilePath = './scatter.png'   
+
+    //getting x data
+    var x = data.slice(0);
+    for (var array of x) {
+        array.splice(1, 3);
+    };
+    x = x.flat();
+    xLabel = x.shift();
+    console.log(xLabel);
+    console.log(x);
+    console.log(data);
+
+    //getting y series
+    /*
+    y = data;
+    console.log(y);
+    for (var array of y) {
+        array.splice(0, 3);
+    };
+    y = y.flat();
+    yLabel = y.shift();
+    console.log(y);
+    */
+
+    //get image from plotly
     plotly.getFigure('arcasoy', 4, function (err, figure) {
         if (err) return console.log(err);
-        console.log(figure);
+        //console.log(figure);
         var imgOpts = {
             format: 'png',
             width: 1000,
             height: 500
         };
-        //need to fix from here down, error 502
+        //get and save image
         plotly.getImage(figure, imgOpts, function (error, imageStream) {
             if (error) return console.log (error);
-            console.log("in get image");
-            var fileStream = fs.createWriteStream('./2.png');
+            var fileStream = fs.createWriteStream(scatterPlotFilePath);
             imageStream.pipe(fileStream);
         });
     });
-    //callback(scatterPlot);
+    callback(scatterPlotFilePath);
 };
 
 client.login(auth.discordToken);
