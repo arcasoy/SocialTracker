@@ -28,24 +28,28 @@ client.on('message', msg => {
 //Respond to messages sent by AX
 client.on('message', msg => {
     client.users.fetch('166055639322329088').then(result => {
-        console.log("AX has sent a message! Must respond!");
-        if (result === msg.author && msg.content === "analyze") {
-            sheetsData(function(dataArray) {
-                console.log(dataArray);
-            })}
-        else if (result === msg.author && msg.content === "raw data") {
-            sheetsData(function(dataArray) {
-                msg.reply(dataArray);
-            });
+        if (result !== msg.author ) {
+            return;
         }
-        else if (result === msg.author && msg.content === "scatter") {
-            console.log("In-Development");
-            sheetsData(function(dataArray) {
-                scatter(dataArray, function(scatterPlotFilePath) {
-                    //send image to channel once created
-                    msg.reply({files: [scatterPlotFilePath]});
+        else {
+            console.log("AX has sent a message! Must respond!");
+            if (result === msg.author && msg.content === "raw data") {
+                sheetsData(function(dataArray) {
+                    msg.reply(dataArray);
                 });
-            });
+            }
+            else if (result === msg.author && msg.content === "scatter") {
+                console.log("In-Development");
+                sheetsData(function(dataArray) {
+                    followerChange(dataArray, function(filePath) {
+                        //send image to channel once created
+                        msg.reply({files: [filePath]});//, function(filePath) {
+                            //delete the image once sent
+                            //clearFile(filePath);
+                        //});
+                    });
+                });
+            };
         };
     });
 });
@@ -81,35 +85,42 @@ async function sheetsData(callback) {
     callback(data);
 }
 
-function scatter(data, callback) { 
-    var scatterPlotFilePath = './scatter.png'   
+function followerChange(data, callback) { 
+    var filePath = './followerChange.png'   
+    var x = data.map(a => ([...a]));
+    var y = data.map(a => ([...a]));
 
     //getting x data
-    var x = data.slice(0);
     for (var array of x) {
         array.splice(1, 3);
     };
     x = x.flat();
     xLabel = x.shift();
-    console.log(xLabel);
-    console.log(x);
-    console.log(data);
 
     //getting y series
-    /*
-    y = data;
-    console.log(y);
     for (var array of y) {
         array.splice(0, 3);
     };
     y = y.flat();
     yLabel = y.shift();
-    console.log(y);
-    */
+
+    //graphing to plotly
+    var graphData = [
+        {
+            x: x,
+            y: y,
+            type: "bar"
+        }
+    ];
+    var graphOptions = {filename: "Follower Change", fileopt: "overwrite"};
+    plotly.plot(graphData, graphOptions, function (err, msg) {
+        console.log(msg);
+    });
 
     //get image from plotly
-    plotly.getFigure('arcasoy', 4, function (err, figure) {
-        if (err) return console.log(err);
+    plotly.getFigure('arcasoy', 6, function (err, figure) {
+        if (err)
+            return console.log(err);
         //console.log(figure);
         var imgOpts = {
             format: 'png',
@@ -118,16 +129,30 @@ function scatter(data, callback) {
         };
         //get and save image
         plotly.getImage(figure, imgOpts, function (error, imageStream) {
-            if (error) return console.log (error);
-            var fileStream = fs.createWriteStream(scatterPlotFilePath);
+            if (error)
+                return console.log(error);
+            var fileStream = fs.createWriteStream(filePath);
             imageStream.pipe(fileStream);
+            //callback(imageStream.pipe(fileStream).path)
         });
     });
-    callback(scatterPlotFilePath);
+    callback(filePath);
+};
+
+async function clearFile(path) {
+    fs.unlink(path, (err) => {
+        if (err) {
+            console.log(err);
+            return;
+        };
+    })
 };
 
 client.login(auth.discordToken);
 
 /* ToDo:
-- google sheets incorporation
+- make it so files can be made, posted, and deleted
+- create modules or function calls of different graphs on different files.
+- move g-sheet login to another file
+
 */
