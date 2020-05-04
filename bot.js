@@ -35,18 +35,16 @@ client.on('message', msg => {
             console.log("AX has sent a message! Must respond!");
             if (result === msg.author && msg.content === "raw data") {
                 sheetsData(function(dataArray) {
-                    msg.reply(dataArray);
+                    msg.reply(dataArray)
+                        .catch(console.error);
                 });
             }
             else if (result === msg.author && msg.content === "scatter") {
-                console.log("In-Development");
                 sheetsData(function(dataArray) {
-                    followerChange(dataArray, function(filePath) {
-                        //send image to channel once created
-                        msg.reply({files: [filePath]});//, function(filePath) {
-                            //delete the image once sent
-                            //clearFile(filePath);
-                        //});
+                    followerChange(dataArray, function(path) {
+                        msg.reply({files: [path]})
+                            .then(() => clearFile(path))
+                            .catch(console.error);
                     });
                 });
             };
@@ -85,7 +83,7 @@ async function sheetsData(callback) {
     callback(data);
 }
 
-function followerChange(data, callback) { 
+async function followerChange(data, callback) { 
     var filePath = './followerChange.png'   
     var x = data.map(a => ([...a]));
     var y = data.map(a => ([...a]));
@@ -112,7 +110,25 @@ function followerChange(data, callback) {
             type: "bar"
         }
     ];
-    var graphOptions = {filename: "Follower Change", fileopt: "overwrite"};
+
+    //plot layout
+    var layout = {
+        title: {
+            text: "Daily Follower Change"
+        },
+        xaxis: {
+            title: {
+                text: "Day"
+            }
+        },
+        yaxis: {
+            title: {
+                text: "Growth"
+            }
+        }
+    };
+
+    var graphOptions = {layout: layout, filename: "Follower Change", fileopt: "overwrite"};
     plotly.plot(graphData, graphOptions, function (err, msg) {
         console.log(msg);
     });
@@ -131,15 +147,24 @@ function followerChange(data, callback) {
         plotly.getImage(figure, imgOpts, function (error, imageStream) {
             if (error)
                 return console.log(error);
-            var fileStream = fs.createWriteStream(filePath);
-            imageStream.pipe(fileStream);
-            //callback(imageStream.pipe(fileStream).path)
+            createFile(filePath, imageStream, function(path) {
+                callback(path);
+            });
         });
     });
-    callback(filePath);
+};
+
+async function createFile(path, imageStream, callback) {
+    //creates file stream, then returns path the stream was opened at
+    var fileStream = fs.createWriteStream(path);
+    var stream = imageStream.pipe(fileStream);
+    stream.on('finish', function() {
+        callback(imageStream.pipe(fileStream).path);
+    });
 };
 
 async function clearFile(path) {
+    //deletes file at path
     fs.unlink(path, (err) => {
         if (err) {
             console.log(err);
