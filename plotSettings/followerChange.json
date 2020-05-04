@@ -1,0 +1,15 @@
+{
+    "title": {
+        "text": "Daily Follower Change"
+    },
+    "xaxis": {
+        "title": {
+            "text": "Day"
+        }
+    },
+    "yaxis": {
+        "title": {
+            "text": "Growth"
+        }
+    }
+}

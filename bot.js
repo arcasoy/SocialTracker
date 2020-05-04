@@ -39,7 +39,7 @@ client.on('message', msg => {
                         .catch(console.error);
                 });
             }
-            else if (result === msg.author && msg.content === "scatter") {
+            else if (result === msg.author && msg.content === "Change") {
                 sheetsData(function(dataArray) {
                     followerChange(dataArray, function(path) {
                         msg.reply({files: [path]})
@@ -107,30 +107,24 @@ async function followerChange(data, callback) {
         {
             x: x,
             y: y,
-            type: "bar"
+            type: "bar",
+            marker: {
+                color: "#7C68FF"
+            }
         }
     ];
 
-    //plot layout
-    var layout = {
-        title: {
-            text: "Daily Follower Change"
-        },
-        xaxis: {
-            title: {
-                text: "Day"
-            }
-        },
-        yaxis: {
-            title: {
-                text: "Growth"
-            }
-        }
-    };
-
+    //plot layout and options
+    var layout = require('./plotSettings/followerChange.json');
+    //insert part where title is changed based on socal media used here
     var graphOptions = {layout: layout, filename: "Follower Change", fileopt: "overwrite"};
+
+    //graph the plot
     plotly.plot(graphData, graphOptions, function (err, msg) {
-        console.log(msg);
+        //console.log(msg); <- Pass this info to getFigure so it will always grab the right figure
+        if (err)
+            return console.log(err);
+        //put get Figure inside of here so no wacky plots come out.
     });
 
     //get image from plotly
@@ -176,8 +170,12 @@ async function clearFile(path) {
 client.login(auth.discordToken);
 
 /* ToDo:
-- make it so files can be made, posted, and deleted
+- image posting and deletion module
 - create modules or function calls of different graphs on different files.
 - move g-sheet login to another file
-
+- expand to more plot options (total growth, projected growth (premium), trendlines(premium), etc)
+- integrate plotting for other socials (youtube, twitch, twitter)
+- database integration (move away from g-sheets)
+- add instagram tracking to this bot rather than the other one we are using
+- use discord.js guilds to allow more servers to use! 
 */
