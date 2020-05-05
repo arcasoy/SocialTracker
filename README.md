@@ -13,9 +13,16 @@ Goal: To track YOUR social media growth and update your team through beautiful g
 
 ## Current Features:
 * Bot information when mentioned
+* Google Sheets Integration!
+* Plots:
+  * Daily Follower Change
 
 ## Future Features:
-* Plotting YOUR Data (Obtained through Google Sheets)
+* New Plots:
+  * Total Growth over Time
+  * Projected Growth (Premium)
+  * Trendline Integration
+  * Growth Tips (Premium)
 * Sending Growth Updates to Your Desired Channels
 * Tracking your Instagram Data
 * Database Integration
