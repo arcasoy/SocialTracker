@@ -1,13 +1,13 @@
 const Discord = require('discord.js');
 const auth = require('./auth/auth.json');
 const client = new Discord.Client();
-const fs = require('fs');
+const img = require('./modules/img_module.js');
 
 //google sheets stuff
 const { GoogleSpreadsheet } = require('google-spreadsheet');
 
 //plotting stuff
-var plotlyLogin = {username:"arcasoy", apiKey:auth.plotlyToken, host:'chart-studio.plotly.com'};
+var plotlyLogin = {username: auth.plotlyUsername, apiKey: auth.plotlyToken, host:'chart-studio.plotly.com'};
 var plotly = require('plotly')(plotlyLogin);
 
 client.on('ready', () => {
@@ -43,7 +43,7 @@ client.on('message', msg => {
                 sheetsData(function(dataArray) {
                     followerChange(dataArray, function(path) {
                         msg.reply({files: [path]})
-                            .then(() => clearFile(path))
+                            .then(() => img.clearFile(path))
                             .catch(console.error);
                     });
                 });
@@ -85,8 +85,8 @@ async function sheetsData(callback) {
 
 async function followerChange(data, callback) { 
     var filePath = './followerChange.png'   
-    var x = data.map(a => ([...a]));
-    var y = data.map(a => ([...a]));
+    var x = data.map(a => ([...a])),
+        y = data.map(a => ([...a]));
 
     //getting x data
     for (var array of x) {
@@ -121,12 +121,15 @@ async function followerChange(data, callback) {
 
     //graph the plot
     plotly.plot(graphData, graphOptions, function (err, msg) {
-        //console.log(msg); <- Pass this info to getFigure so it will always grab the right figure
         if (err)
             return console.log(err);
+        
+        // Figure target info for getFigure
+        var target = msg.url.split("/").splice(3);
+        target[0] = target[0].slice(1);
 
         //get image from plotly
-        plotly.getFigure('arcasoy', 6, function (err, figure) {
+        plotly.getFigure(target[0], parseInt(target[1]), function (err, figure) {
             if (err)
                 return console.log(err);
 
@@ -139,7 +142,7 @@ async function followerChange(data, callback) {
             plotly.getImage(figure, imgOpts, function (error, imageStream) {
                 if (error)
                     return console.log(error);
-                createFile(filePath, imageStream, function(path) {
+                img.createFile(filePath, imageStream, function(path) {
                     callback(path);
                 });
             });
@@ -147,29 +150,9 @@ async function followerChange(data, callback) {
     });
 };
 
-async function createFile(path, imageStream, callback) {
-    //creates file stream, then returns path the stream was opened at
-    var fileStream = fs.createWriteStream(path);
-    var stream = imageStream.pipe(fileStream);
-    stream.on('finish', function() {
-        callback(imageStream.pipe(fileStream).path);
-    });
-};
-
-async function clearFile(path) {
-    //deletes file at path
-    fs.unlink(path, (err) => {
-        if (err) {
-            console.log(err);
-            return;
-        };
-    })
-};
-
 client.login(auth.discordToken);
 
 /* ToDo:
-- image posting and deletion module
 - create modules or function calls of different graphs on different files.
 - move g-sheet login to another file
 - expand to more plot options (total growth, projected growth (premium), trendlines(premium), etc)
