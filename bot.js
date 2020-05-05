@@ -64,14 +64,14 @@ async function sheetsData(callback) {
     await sheetInsta.loadCells(); // load all cells on instagram sheet
     
     //determining row count
-    const filledCells = sheetInsta.cellStats.nonEmpty;
+    var filledCells = sheetInsta.cellStats.nonEmpty;
     var columns = 4; //populated columns, figure out a way to dynamically get this
-    var rows = filledCells/columns;
+    var rows = Math.ceil(filledCells/columns);
 
-    let data = [];
-    let rowArr = [];
+    var data = [];
+    var rowArr = [];
 
-    for (var i = 0; i < rows; i++) {
+    for (var i = 0; i < (rows+1); i++) {
         if (rowArr.length === 4) {
             data.push(rowArr);
             rowArr = [];
@@ -124,25 +124,24 @@ async function followerChange(data, callback) {
         //console.log(msg); <- Pass this info to getFigure so it will always grab the right figure
         if (err)
             return console.log(err);
-        //put get Figure inside of here so no wacky plots come out.
-    });
 
-    //get image from plotly
-    plotly.getFigure('arcasoy', 6, function (err, figure) {
-        if (err)
-            return console.log(err);
-        //console.log(figure);
-        var imgOpts = {
-            format: 'png',
-            width: 1000,
-            height: 500
-        };
-        //get and save image
-        plotly.getImage(figure, imgOpts, function (error, imageStream) {
-            if (error)
-                return console.log(error);
-            createFile(filePath, imageStream, function(path) {
-                callback(path);
+        //get image from plotly
+        plotly.getFigure('arcasoy', 6, function (err, figure) {
+            if (err)
+                return console.log(err);
+
+            var imgOpts = {
+                format: 'png',
+                width: 1000,
+                height: 500
+            };
+            //get and save image
+            plotly.getImage(figure, imgOpts, function (error, imageStream) {
+                if (error)
+                    return console.log(error);
+                createFile(filePath, imageStream, function(path) {
+                    callback(path);
+                });
             });
         });
     });
