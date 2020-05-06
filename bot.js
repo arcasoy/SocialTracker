@@ -2,13 +2,10 @@ const Discord = require('discord.js');
 const auth = require('./auth/auth.json');
 const client = new Discord.Client();
 const img = require('./modules/img_module.js');
+const plot = require('./modules/plot_type_modules.js');
 
 //google sheets stuff
 const { GoogleSpreadsheet } = require('google-spreadsheet');
-
-//plotting stuff
-var plotlyLogin = {username: auth.plotlyUsername, apiKey: auth.plotlyToken, host:'chart-studio.plotly.com'};
-var plotly = require('plotly')(plotlyLogin);
 
 client.on('ready', () => {
     client.user.setPresence({ activity: { type: 'WATCHING', name: 'your Followers!' }, status: 'online' })
@@ -41,7 +38,16 @@ client.on('message', msg => {
             }
             else if (result === msg.author && msg.content === "Change") {
                 sheetsData(function(dataArray) {
-                    followerChange(dataArray, function(path) {
+                    plot.change(dataArray, function(path) {
+                        msg.reply({files: [path]})
+                            .then(() => img.clearFile(path))
+                            .catch(console.error);
+                    });
+                });
+            }
+            else if (result === msg.author && msg.content === "Overall") {
+                sheetsData(function(dataArray) {
+                    plot.overall(dataArray, function(path) {
                         msg.reply({files: [path]})
                             .then(() => img.clearFile(path))
                             .catch(console.error);
@@ -83,77 +89,10 @@ async function sheetsData(callback) {
     callback(data);
 }
 
-async function followerChange(data, callback) { 
-    var filePath = './followerChange.png'   
-    var x = data.map(a => ([...a])),
-        y = data.map(a => ([...a]));
-
-    //getting x data
-    for (var array of x) {
-        array.splice(1, 3);
-    };
-    x = x.flat();
-    xLabel = x.shift();
-
-    //getting y series
-    for (var array of y) {
-        array.splice(0, 3);
-    };
-    y = y.flat();
-    yLabel = y.shift();
-
-    //graphing to plotly
-    var graphData = [
-        {
-            x: x,
-            y: y,
-            type: "bar",
-            marker: {
-                color: "#7C68FF"
-            }
-        }
-    ];
-
-    //plot layout and options
-    var layout = require('./plotSettings/followerChange.json');
-    //insert part where title is changed based on socal media used here
-    var graphOptions = {layout: layout, filename: "Follower Change", fileopt: "overwrite"};
-
-    //graph the plot
-    plotly.plot(graphData, graphOptions, function (err, msg) {
-        if (err)
-            return console.log(err);
-        
-        // Figure target info for getFigure
-        var target = msg.url.split("/").splice(3);
-        target[0] = target[0].slice(1);
-
-        //get image from plotly
-        plotly.getFigure(target[0], parseInt(target[1]), function (err, figure) {
-            if (err)
-                return console.log(err);
-
-            var imgOpts = {
-                format: 'png',
-                width: 1000,
-                height: 500
-            };
-            //get and save image
-            plotly.getImage(figure, imgOpts, function (error, imageStream) {
-                if (error)
-                    return console.log(error);
-                img.createFile(filePath, imageStream, function(path) {
-                    callback(path);
-                });
-            });
-        });
-    });
-};
-
 client.login(auth.discordToken);
 
 /* ToDo:
-- create modules or function calls of different graphs on different files.
+- clean up plotting modules and settings
 - move g-sheet login to another file
 - expand to more plot options (total growth, projected growth (premium), trendlines(premium), etc)
 - integrate plotting for other socials (youtube, twitch, twitter)
