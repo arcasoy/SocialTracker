@@ -16,6 +16,7 @@ Goal: To track YOUR social media growth and update your team through beautiful g
 * Google Sheets Integration!
 * Plots:
   * Daily Follower Change
+  * Overall Follower Growth
 
 ## Future Features:
 * New Plots:
