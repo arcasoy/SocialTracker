@@ -1,0 +1,16 @@
+{
+    "title": {
+        "text": "Overall Follower Growth"
+    },
+    "xaxis": {
+        "title": {
+            "text": "Day"
+        }
+    },
+    "yaxis": {
+        "title": {
+            "text": "Growth"
+        },
+        "type": "log"
+    }
+}
