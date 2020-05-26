@@ -75,7 +75,8 @@ module.exports = {
         //plot layout and options
         var layout = require('../plotSettings/overallFollowers.json');
         //insert part where title is changed based on socal media used here
-        var graphOptions = {layout: layout, filename: "Follower Change", fileopt: "overwrite"};
+        var graphOptions = {layout: layout, filename: "Follower Overall", fileopt: "overwrite"};
+        
 
         plot.createPlot(graphData, graphOptions, function(path) {
             callback(path);

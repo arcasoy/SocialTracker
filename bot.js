@@ -22,40 +22,39 @@ client.on('message', msg => {
     }   
 });
 
-//Respond to messages sent by AX
+//Respond to messages sent with prefix !st
 client.on('message', msg => {
-    client.users.fetch('166055639322329088').then(result => {
-        if (result !== msg.author ) {
-            return;
+    if (msg.content.split(" ")[0] === '!st') {
+        console.log("Command Recieved using prefix !st");
+        let commandContent = msg.content.split(" "); //Creating variable for all command details
+        
+        //The following are commands that can be called
+        if (commandContent[1] === "rawData") {
+            sheetsData(function(dataArray) {
+                msg.reply(dataArray)
+                    .catch(console.error);
+            });
         }
-        else {
-            console.log("AX has sent a message! Must respond!");
-            if (result === msg.author && msg.content === "raw data") {
-                sheetsData(function(dataArray) {
-                    msg.reply(dataArray)
+        //these two calls below are returning the same (second called) graph when called in quick successtion. Have the files get made under a different name.
+        else if (commandContent[1] === "change") {
+            sheetsData(function(dataArray) {
+                plot.change(dataArray, function(path) {
+                    msg.reply({files: [path]})
+                        .then(() => img.clearFile(path))
                         .catch(console.error);
                 });
-            }
-            else if (result === msg.author && msg.content === "Change") {
-                sheetsData(function(dataArray) {
-                    plot.change(dataArray, function(path) {
-                        msg.reply({files: [path]})
-                            .then(() => img.clearFile(path))
-                            .catch(console.error);
-                    });
+            });
+        }
+        else if (commandContent[1] === "overall") {
+            sheetsData(function(dataArray) {
+                plot.overall(dataArray, function(path) {
+                    msg.reply({files: [path]})
+                        .then(() => img.clearFile(path))
+                        .catch(console.error);
                 });
-            }
-            else if (result === msg.author && msg.content === "Overall") {
-                sheetsData(function(dataArray) {
-                    plot.overall(dataArray, function(path) {
-                        msg.reply({files: [path]})
-                            .then(() => img.clearFile(path))
-                            .catch(console.error);
-                    });
-                });
-            };
+            });
         };
-    });
+    }
 });
 
 async function sheetsData(callback) {
@@ -92,9 +91,8 @@ async function sheetsData(callback) {
 client.login(auth.discordToken);
 
 /* ToDo:
-- clean up plotting modules and settings
 - move g-sheet login to another file
-- expand to more plot options (total growth, projected growth (premium), trendlines(premium), etc)
+- expand to more plot options (projected growth (premium), trendlines(premium), etc)
 - integrate plotting for other socials (youtube, twitch, twitter)
 - database integration (move away from g-sheets)
 - add instagram tracking to this bot rather than the other one we are using
