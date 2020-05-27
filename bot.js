@@ -3,10 +3,12 @@ const auth = require('./auth/auth.json');
 const client = new Discord.Client();
 const img = require('./modules/img_module.js');
 const plot = require('./modules/plot_type_modules.js');
+const db = require('./modules/db_modules.js');
 
-//google sheets stuff
+//google storage stuff
 const { GoogleSpreadsheet } = require('google-spreadsheet');
 
+//Connect to Discord and set status
 client.on('ready', () => {
     client.user.setPresence({ activity: { type: 'WATCHING', name: 'your Followers!' }, status: 'online' })
         //.then(console.log) //For ClientPresence log
@@ -33,6 +35,8 @@ client.on('message', msg => {
             sheetsData(function(dataArray) {
                 msg.reply(dataArray)
                     .catch(console.error);
+                //update the db each time rawData is called
+                db.insert("TeamDamagedSouls", "insta", dataArray); 
             });
         }
         //these two calls below are returning the same (second called) graph when called in quick successtion. Have the files get made under a different name.
@@ -91,10 +95,12 @@ async function sheetsData(callback) {
 client.login(auth.discordToken);
 
 /* ToDo:
+- put plot_modules in plot_type_module and reanme to plot_modules (only one function in plot_modules, combine into one)
 - move g-sheet login to another file
 - expand to more plot options (projected growth (premium), trendlines(premium), etc)
 - integrate plotting for other socials (youtube, twitch, twitter)
 - database integration (move away from g-sheets)
 - add instagram tracking to this bot rather than the other one we are using
 - use discord.js guilds to allow more servers to use! 
+- (add functionality to add multiple accounts/premium feature)
 */
