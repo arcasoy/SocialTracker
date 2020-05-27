@@ -36,7 +36,8 @@ client.on('message', msg => {
                 msg.reply(dataArray)
                     .catch(console.error);
                 //update the db each time rawData is called
-                db.insert("TeamDamagedSouls", "insta", dataArray); 
+                db.insert(msg.guild.id, "insta", dataArray);
+                //console.log(msg.guild.id); //returns id of server, so you can identify which db to be in. Should be in the first parameter of db.insert() above.
             });
         }
         //these two calls below are returning the same (second called) graph when called in quick successtion. Have the files get made under a different name.
@@ -95,11 +96,11 @@ async function sheetsData(callback) {
 client.login(auth.discordToken);
 
 /* ToDo:
+- database integration (move away from g-sheets) (next is db query)
 - put plot_modules in plot_type_module and reanme to plot_modules (only one function in plot_modules, combine into one)
 - move g-sheet login to another file
 - expand to more plot options (projected growth (premium), trendlines(premium), etc)
 - integrate plotting for other socials (youtube, twitch, twitter)
-- database integration (move away from g-sheets)
 - add instagram tracking to this bot rather than the other one we are using
 - use discord.js guilds to allow more servers to use! 
 - (add functionality to add multiple accounts/premium feature)
