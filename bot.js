@@ -2,7 +2,7 @@ const Discord = require('discord.js');
 const auth = require('./auth/auth.json');
 const client = new Discord.Client();
 const img = require('./modules/img_module.js');
-const plot = require('./modules/plot_type_modules.js');
+const plot = require('./modules/plot_modules.js');
 const db = require('./modules/db_modules.js');
 
 //google storage stuff
@@ -26,24 +26,31 @@ client.on('message', msg => {
 
 //Respond to messages sent with prefix !st
 client.on('message', msg => {
-    if (msg.content.split(" ")[0] === '!st') {
-        console.log("Command Recieved using prefix !st");
-        let commandContent = msg.content.split(" "); //Creating variable for all command details
+    if (msg.content.split(" ")[0] === '.st') {
+        console.log("Command Recieved using prefix .st");
+        let commandContent = msg.content.toLowerCase().split(" "); //Creating variable for all command details
         
         //The following are commands that can be called
-        if (commandContent[1] === "rawData") {
-            sheetsData(function(dataArray) {
+        if (commandContent[1] === "rawdata") {
+            sheetsData(dataArray => {
                 msg.reply(dataArray)
                     .catch(console.error);
-                //update the db each time rawData is called
-                db.insert(msg.guild.id, "insta", dataArray);
-                //console.log(msg.guild.id); //returns id of server, so you can identify which db to be in. Should be in the first parameter of db.insert() above.
             });
         }
-        //these two calls below are returning the same (second called) graph when called in quick successtion. Have the files get made under a different name.
+        //temporary to ensure that no TDS data is populated in other server's databases
+        else if (commandContent[1] === "transfer") {
+            sheetsData(dataArray => {
+                if (msg.guild.id === '679535001288966156') {
+                    db.insert(msg.guild.id, "insta", dataArray);
+                    msg.reply("Data from Google Sheets has been updated to Google Cloud MySQL Database")
+                } else {
+                    msg.reply("You are not in the right server ALEX!")
+                }
+            });
+        }
         else if (commandContent[1] === "change") {
-            sheetsData(function(dataArray) {
-                plot.change(dataArray, function(path) {
+            db.query('679535001288966156', "insta", result => {
+                plot.change(result, path => {
                     msg.reply({files: [path]})
                         .then(() => img.clearFile(path))
                         .catch(console.error);
@@ -51,14 +58,25 @@ client.on('message', msg => {
             });
         }
         else if (commandContent[1] === "overall") {
-            sheetsData(function(dataArray) {
-                plot.overall(dataArray, function(path) {
+            db.query('679535001288966156', "insta", result => {
+                plot.overall(result, path => {
                     msg.reply({files: [path]})
                         .then(() => img.clearFile(path))
                         .catch(console.error);
                 });
             });
-        };
+        }
+        else if (commandContent[1] === "query") {
+            db.query(msg.guild.id, "insta", result => {
+                console.log('recieved result');
+            })
+        } 
+        else if(commandContent[1] === 'premium') {
+            msg.reply("Thank you for inquiring about Social Tracker Premium! Premium features will be available shortly once my primary functions are solidified!");
+        }
+        else {
+            msg.reply(`${commandContent[1]} is not a command!`);
+        }
     }
 });
 
@@ -96,8 +114,8 @@ async function sheetsData(callback) {
 client.login(auth.discordToken);
 
 /* ToDo:
-- database integration (move away from g-sheets) (next is db query)
-- put plot_modules in plot_type_module and reanme to plot_modules (only one function in plot_modules, combine into one)
+- Get ONE (any) social media tracking from this bot (can move to another bot down the line if demand is so high).
+- settings table in database for social storage
 - move g-sheet login to another file
 - expand to more plot options (projected growth (premium), trendlines(premium), etc)
 - integrate plotting for other socials (youtube, twitch, twitter)
