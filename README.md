@@ -14,6 +14,7 @@ Goal: To track YOUR social media growth and update your team through beautiful g
 ## Current Features:
 * Bot information when mentioned
 * Google Sheets Integration!
+* Added Google Cloud Database Integration!
 * Plots:
   * Daily Follower Change
   * Overall Follower Growth
