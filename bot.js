@@ -71,7 +71,7 @@ client.on('message', msg => {
                 console.log('recieved result');
             })
         } 
-        else if(commandContent[1] === 'premium') {
+        else if (commandContent[1] === 'premium') {
             msg.reply("Thank you for inquiring about Social Tracker Premium! Premium features will be available shortly once my primary functions are solidified!");
         }
         else {
@@ -115,7 +115,7 @@ client.login(auth.discordToken);
 
 /* ToDo:
 - Get ONE (any) social media tracking from this bot (can move to another bot down the line if demand is so high).
-- settings table in database for social storage
+- settings table in database for social id storage
 - move g-sheet login to another file
 - expand to more plot options (projected growth (premium), trendlines(premium), etc)
 - integrate plotting for other socials (youtube, twitch, twitter)
