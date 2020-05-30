@@ -4,9 +4,22 @@ const client = new Discord.Client();
 const img = require('./modules/img_module.js');
 const plot = require('./modules/plot_modules.js');
 const db = require('./modules/db_modules.js');
+const yt = require('./modules/yt_modules');
 
 //google storage stuff
 const { GoogleSpreadsheet } = require('google-spreadsheet');
+
+//Discord Message Embed
+const EmbedMsg = new Discord.MessageEmbed()
+	.setColor('#ffd801')
+	.setTitle('Sample Title')
+	.setAuthor('Social Tracker Bot', 'https://i.imgur.com/ev3XYNc.png', 'https://discord.com/api/oauth2/authorize?client_id=699829462614671390&permissions=8&scope=bot')
+	.setDescription('⬆️ Is this the right account? ⬆️')
+	.setThumbnail('https://i.imgur.com/ev3XYNc.png')
+	.setTimestamp()
+	.setFooter('Social Tracker Developed by AX#1999', 'https://i.imgur.com/ev3XYNc.png');
+
+//channel.send(exampleEmbed);
 
 //Connect to Discord and set status
 client.on('ready', () => {
@@ -28,7 +41,7 @@ client.on('message', msg => {
 client.on('message', msg => {
     if (msg.content.split(" ")[0] === '.st') {
         console.log("Command Recieved using prefix .st");
-        let commandContent = msg.content.toLowerCase().split(" "); //Creating variable for all command details
+        let commandContent = msg.content.split(" "); //Creating variable for all command details
         
         //The following are commands that can be called
         if (commandContent[1] === "rawdata") {
@@ -37,11 +50,34 @@ client.on('message', msg => {
                     .catch(console.error);
             });
         }
+        //initializing new social media
+        else if(commandContent[1] === "new") {
+            let acceptedResponses = ['instagram', 'youtube'];
+            if (acceptedResponses[0] === commandContent[2]) {
+                msg.reply("instagram tracking in development still");
+            } else if (acceptedResponses[1] === commandContent[2]) {
+                if (commandContent[3]) {
+                    yt.newAccount(commandContent[3], result => {
+                        console.log(result.snippet);
+                        msg.channel.send(EmbedMsg.setTitle(result.snippet.title).setThumbnail(result.snippet.thumbnails.default.url).setURL(`https://www.youtube.com/channel/${result.id}`))
+                            .then(sentEmbed => {
+                                sentEmbed.react("✅")
+                                sentEmbed.react("❌")
+                            });
+                    })
+                    //db.insert(msg.guild.id, commandContent[2], commandContent[3])
+                } else {
+                    msg.reply('you must include a channel id!');
+                }
+            } else {
+                msg.reply(`that is not an accepted response. Accepted responses: \n ${acceptedResponses[0]} \n ${acceptedResponses[1]}`);
+            }
+        }
         //temporary to ensure that no TDS data is populated in other server's databases
         else if (commandContent[1] === "transfer") {
             sheetsData(dataArray => {
                 if (msg.guild.id === '679535001288966156') {
-                    db.insert(msg.guild.id, "insta", dataArray);
+                    db.insert(msg.guild.id, "instagram", dataArray);
                     msg.reply("Data from Google Sheets has been updated to Google Cloud MySQL Database")
                 } else {
                     msg.reply("You are not in the right server ALEX!")
