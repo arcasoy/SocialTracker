@@ -7,9 +7,13 @@ const plotly = require('plotly')(plotlyLogin);
 
 module.exports = {
     change: async function change(data, callback) {     
-        var x = data.map(a => ([a.date])).flat(),
-            y = data.map(a => ([a.chng])).flat();
-
+        var x = data.map(a => ([a.dt].toString().slice(4, 15))).flat(),
+            y = []
+        y.push(0);
+        for (element in data) {
+            if (element === 0) y.push(element);
+            else if (element > 0) y.push(data[element].followers - data[element-1].followers)
+        }
         //graphing to plotly
         var graphData = [
             {
@@ -32,9 +36,8 @@ module.exports = {
         })
     },
     overall: async function overall(data, callback) {
-        var x = data.map(a => ([a.date])).flat(),
+        var x = data.map(a => ([a.dt].toString().slice(4, 15))).flat(),
             y = data.map(a => ([a.followers])).flat();
-
         //graphing to plotly
         var graphData = [
             {

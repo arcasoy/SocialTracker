@@ -13,9 +13,8 @@ module.exports = {
     getData: async function getData(ChannelID) {
         const res = await youtube.channels.list({
             part: 'statistics', 
-            id: 'UCckRclZM-Lgeyy3f3SKsGPg'
+            id: ChannelID
         });
-        console.log(res.data);
-        console.log(res.data.items[0].statistics);
+        return(res.data.items[0].statistics.subscriberCount);
     }
 }

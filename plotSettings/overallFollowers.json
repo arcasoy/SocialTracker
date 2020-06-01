@@ -11,6 +11,6 @@
         "title": {
             "text": "Growth"
         },
-        "type": "log"
+        "type": "linear"
     }
 }
