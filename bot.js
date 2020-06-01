@@ -185,12 +185,11 @@ async function sheetsData(callback) {
 client.login(auth.discordToken);
 
 /* ToDo:
-- Fix emdedded message (addField will stay in sessions) (move embed thing to this file or figure out how new constructors work on exportrs)
-- Get ONE (any) social media tracking from this bot (can move to another bot down the line if demand is so high).
-- settings table in database for social id storage
+- Auto tracking daily (midnight)
+- Clean up function. Make better exports, modules, promises (PLEASE PROMISES OMG CALLBACK HELL)
 - move g-sheet login to another file
 - expand to more plot options (projected growth (premium), trendlines(premium), etc)
-- integrate plotting for other socials (youtube, twitch, twitter)
+- integrate plotting for other socials (instagram, youtube, twitch, twitter)
 - add instagram tracking to this bot rather than the other one we are using
 - use discord.js guilds to allow more servers to use! 
 - (add functionality to add multiple accounts/premium feature)
