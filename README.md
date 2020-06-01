@@ -12,9 +12,11 @@ Goal: To track YOUR social media growth and update your team through beautiful g
 ---
 
 ## Current Features:
-* Bot information when mentioned
+* Bot Information when mentioned
 * Google Sheets Integration!
 * Added Google Cloud Database Integration!
+* Socials:
+  * YouTube
 * Plots:
   * Daily Follower Change
   * Overall Follower Growth
@@ -27,5 +29,5 @@ Goal: To track YOUR social media growth and update your team through beautiful g
   * Growth Tips (Premium)
 * Sending Growth Updates to Your Desired Channels
 * Tracking your Instagram Data
-* Database Integration
-* Use APIs to expand to Youtube, Twitter, and Twitch Data
+* Backtrack Collecting Data!
+* Use APIs to expand to Instagram, Twitter, and Twitch Data
