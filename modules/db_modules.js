@@ -2,6 +2,8 @@ const mysql = require('mysql');
 const auth = require('../auth/auth.json');
 const yt = require('./yt_modules.js');
 
+const pool = mysql.createPool(auth.dbLogin);
+
 module.exports = {
     newAccount: async function newAccouts(dbName, social, user) {
         var con = mysql.createConnection(auth.dbLogin)
@@ -34,53 +36,50 @@ module.exports = {
         })
     },
     getYT: async function getYT(callback) {
-        var con = mysql.createConnection(auth.dbLogin)
         let accounts = []
-        let data = []
 
-        function query(databases, count) {
+        async function query(databases, count) {
+            //Hopeful to get rid of recursive function and promisify the stuff in the if.
             if(count > 0) {
                 currentPos = databases.length - count
-                con.query(`USE \`${databases[currentPos]}\``, (err, result) => {
-                    if (err) callback(err.code)
-                    con.query(`SELECT * FROM accounts`, (err, results) => {
-                        if (err) callback(err.code);
-                        accounts.push(results[0].user)
-                        count = count - 1;
-                        query(databases, count);
+                pool.getConnection((err, con) => {
+                    con.query(`USE \`${databases[currentPos]}\``, (err, result) => {
+                        if (err) throw (err)
+                        con.query(`SELECT * FROM accounts`, (err, results) => {
+                            if (err) throw (err);
+                            accounts.push(results[0].user)
+                            count = count - 1;
+                            query(databases, count);
+                            con.release();
+                        })
                     })
                 })
             } else {
-                for (account of accounts) {
-                    yt.getData(account)
-                    .then(subs => {
-                        let temp = {"database": databases[data.length], "user": account, "subs": subs};
-                        data.push(temp)
-                        if (data.length === databases.length) {
-                            callback(data);
-                        }
-                    })
-                }
+                let data = accounts.map(async(account) => { // map instead of forEach
+                    const result = await yt.getData(account);
+                    return {"database": databases[accounts.indexOf(account)], "user": account, "subs": result}
+                });
+                callback(resolvedSubsArray = await Promise.all(data)); // resolving all promises
             }
         }
-
-        con.connect(function(err) {
+        pool.getConnection(function(err, con) {
             if (err) throw err;
             console.log("Getting Accounts");
             con.query(`SELECT DISTINCT SCHEMA_NAME AS 'database'
             FROM information_schema.SCHEMATA
             WHERE  SCHEMA_NAME NOT IN ('information_schema', 'performance_schema', 'mysql', 'sys')
             ORDER BY SCHEMA_NAME`, (err, result) => {
+                if (err) throw err;
                 databases = result.map(a => ([a.database])).flat()
-                query(databases, databases.length)                
+                query(databases, databases.length)
+                con.release()                
             })
         })
     },
     insert: async function insert(dbName, table, data) {
-        var con = mysql.createConnection(auth.dbLogin)
-        con.connect((err) => {
+        pool.getConnection((err, con) => {
             if (err) throw err;
-            console.log("Connected to MySQL Server");
+            console.log("Inserting into MySQL Server");
             con.query(`CREATE DATABASE IF NOT EXISTS \`${dbName}\``, function (err, result) {
                 if (err) throw err;
                 con.query(`USE \`${dbName}\``, (err, result) => {
@@ -95,9 +94,10 @@ module.exports = {
                             `INSERT INTO ${table} (followers)
                             SELECT * FROM (SELECT ${data} AS followers) AS tmp
                             WHERE NOT EXISTS (
-                                SELECT dt FROM ${table} WHERE dt = dt
+                                SELECT dt FROM ${table} WHERE dt = now()
                             ) LIMIT 1;`, (err, result) => {
                                 if (err) throw err;
+                                con.release();
                             }
                         )
                     })
@@ -106,8 +106,7 @@ module.exports = {
         })
     },
     transferInsert: async function transferInsert(dbName, table, data) { //Used for instagram tracking for TDS. Temp and will be removed when instagram tracking is on this bot
-        var con = mysql.createConnection(auth.dbLogin)
-        con.connect((err) => {
+        pool.getConnection((err, con) => {
             if (err) throw err;
             console.log("Connected to MySQL Server");
             con.query(`CREATE DATABASE IF NOT EXISTS \`${dbName}\``, function (err, result) {
@@ -137,22 +136,21 @@ module.exports = {
         })
     },
     query: async function query(dbName, table, callback) {
-        var con = mysql.createConnection(auth.dbLogin)
-        con.connect(function(err) {
+        pool.getConnection((err, con) => {
             if (err) throw err;
             console.log("Querying MySQL Server");
             con.query(`USE \`${dbName}\``, (err, result) => {
                 if (err) callback(err.code)
                 con.query(`SELECT * FROM ${table}`, (err, results) => {
                     if (err) callback(err.code);
+                    con.release();
                     callback(results);
                 })
             })
         })
     },
     feedback: async function feedback(dbName, table, feedback, user) {
-        var con = mysql.createConnection(auth.dbLogin)
-        con.connect((err) => {
+        pool.getConnection((err, con) => {
             if (err) throw err;
             console.log("Inserting Feedback into MySQL Server");
             con.query(`CREATE DATABASE IF NOT EXISTS \`${dbName}\``, function (err, result) {
@@ -173,6 +171,7 @@ module.exports = {
                                 SELECT feedback FROM ${table} WHERE feedback = '${feedback}'
                             ) LIMIT 1;`, (err, result) => {
                                 if (err) throw err;
+                                con.release();
                             }
                         )
                     })
@@ -181,3 +180,7 @@ module.exports = {
         })
     },
 }
+
+/*
+TODO:
+*/

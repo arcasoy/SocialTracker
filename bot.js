@@ -86,13 +86,13 @@ client.on('message', msg => {
                     let newEmbed = cloneDeep(disc.EmbedMsg);
                     msg.channel.send(newEmbed.setTitle("Uh-oh").setDescription(`No data for your ${commandContent[2]} account found`).addField("Next Steps:", `Use ".st new ${commandContent[2]} {username}" to start tracking!`));
                 }
-                else if (result.length > 1) {
+                else if (result !== undefined && result.length > 1) {
                     plot.change(result, path => {
                         msg.reply({files: [path]})
                             .then(() => img.clearFile(path))
                             .catch(console.error);
                     });
-                } else if (result.length === 1) {
+                } else if (result !== undefined && result.length === 1) {
                     let newEmbed = cloneDeep(disc.EmbedMsg);
                     msg.channel.send(newEmbed.setTitle("Uh-oh").setDescription(`Not enough data for your ${commandContent[2]} account`).addField("Please wait 2 days:", `We check your growth daily! To plot it, we need at least 2 data points!`));
                 }
@@ -186,7 +186,7 @@ client.login(auth.discordToken);
 
 /* ToDo:
 - Auto tracking daily (midnight)
-- Clean up function. Make better exports, modules, promises (PLEASE PROMISES OMG CALLBACK HELL)
+- Clean up function. Make better exports, modules, promises (PLEASE PROMISES OMG CALLBACK HELL) Look into classes using this.command stuff.
 - move g-sheet login to another file
 - expand to more plot options (projected growth (premium), trendlines(premium), etc)
 - integrate plotting for other socials (instagram, youtube, twitch, twitter)

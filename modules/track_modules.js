@@ -4,6 +4,7 @@ const yt = require('./yt_modules.js');
 let ytTrack = async function () {
     db.getYT(results => {
         for (result of results) {
+            //console.log(result);
             db.insert(result.database, 'youtube', result.subs.toString())
         }
     })
