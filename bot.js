@@ -40,7 +40,8 @@ client.on('message', msg => {
         if(commandContent[1] === "new") {
             let acceptedResponses = ['instagram', 'youtube'];
             if (commandContent[2] === acceptedResponses[0]) {
-                msg.reply("instagram tracking in development still");
+                let newEmbed = cloneDeep(disc.EmbedMsg);
+                msg.channel.send(newEmbed.setTitle("Uh-oh").setDescription("Instagram Tracking currently in Development!"));
             } else if (commandContent[2] === acceptedResponses[1]) {
                 if (commandContent[3]) {
                     yt.newAccount(commandContent[3], result => {
@@ -49,10 +50,18 @@ client.on('message', msg => {
                         .then(sentEmbed => {
                             disc.YNReaction(msg, sentEmbed, response => {
                                 if (response) {
-                                    db.newAccount(msg.guild.id, commandContent[2], commandContent[3], () => {
-                                        let newEmbed = cloneDeep(disc.EmbedMsg);
-                                        msg.channel.send(newEmbed.setTitle("Account Added").setDescription("Your account will begin to be tracked daily!"));
-                                        track.ytTrack();
+                                    db.newAccount(msg.guild.id, commandContent[2], commandContent[3], (result) => {
+                                        if (result === 1) {
+                                            let newEmbed = cloneDeep(disc.EmbedMsg);
+                                            msg.channel.send(newEmbed.setTitle("Account Added").setDescription("Your account will begin to be tracked daily!"));
+                                            track.ytTrack();
+                                        } else if (result === 0) {
+                                            let newEmbed = cloneDeep(disc.EmbedMsg);
+                                            msg.channel.send(newEmbed.setTitle("Account Not Added").setDescription("You already have an account linked to this Discord server!").addField("|", "Current limit to 1 account per server"));
+                                        } else {
+                                            let newEmbed = cloneDeep(disc.EmbedMsg);
+                                            msg.channel.send(newEmbed.setTitle("Uh-oh").setDescription("There was an error").addField("Contact Us", "Please use .st feedback or contact @AX#1999 regarding your issue"));
+                                        }
                                     })
                                 }
                                 else {
@@ -62,7 +71,10 @@ client.on('message', msg => {
                             })
                         })
                     })
-                } else msg.reply('you must include a channel id!');
+                } else {
+                    let newEmbed = cloneDeep(disc.EmbedMsg);
+                    msg.channel.send(newEmbed.setTitle("Uh-oh").setDescription("Please include a Channel ID").addField("Your YouTube channel ID is the string if characters at the end of your URL", "Example: youtube.com/channel/**UCXA_lyqyrDsY0CsA-BJHH0g**"));
+                }
             } else msg.reply(`that is not an accepted response. Accepted responses: \n ${acceptedResponses[0]} \n ${acceptedResponses[1]}`);
         }
         //temporary to ensure that no TDS data is populated in other server's databases

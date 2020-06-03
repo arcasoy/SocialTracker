@@ -5,10 +5,9 @@ const yt = require('./yt_modules.js');
 const pool = mysql.createPool(auth.dbLogin);
 
 module.exports = {
-    newAccount: async function newAccouts(dbName, social, user) {
-        var con = mysql.createConnection(auth.dbLogin)
+    newAccount: async function newAccouts(dbName, social, user, callback) {
         let table = 'accounts';
-        con.connect((err) => {
+        pool.getConnection((err, con) => {
             if (err) throw err;
             console.log("Connected to MySQL Server");
             con.query(`CREATE DATABASE IF NOT EXISTS \`${dbName}\``, function (err, result) {
@@ -28,6 +27,8 @@ module.exports = {
                                 SELECT social FROM ${table} WHERE social = '${social}'
                             ) LIMIT 1;`, (err, result) => {
                                 if (err) throw err;
+                                con.release();
+                                callback(result.affectedRows);
                             }
                         )
                     })
@@ -40,6 +41,7 @@ module.exports = {
 
         async function query(databases, count) {
             //Hopeful to get rid of recursive function and promisify the stuff in the if.
+            //probably have to promisfy the con.query function so you can .then() and return the final result to a database.
             if(count > 0) {
                 currentPos = databases.length - count
                 pool.getConnection((err, con) => {
@@ -94,7 +96,7 @@ module.exports = {
                             `INSERT INTO ${table} (followers)
                             SELECT * FROM (SELECT ${data} AS followers) AS tmp
                             WHERE NOT EXISTS (
-                                SELECT dt FROM ${table} WHERE dt = now()
+                                SELECT dt FROM ${table} WHERE DATE(dt) = CURDATE()
                             ) LIMIT 1;`, (err, result) => {
                                 if (err) throw err;
                                 con.release();
