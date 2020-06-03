@@ -1,18 +1,22 @@
+//Discord Mods
 const Discord = require('discord.js');
+const client = new Discord.Client();
+
+//Utility Mods
 const auth = require('./auth/auth.json');
 const { clone, cloneDeep } = require('lodash');
-const client = new Discord.Client();
-const img = require('./modules/img_module.js');
-const plot = require('./modules/plot_modules.js');
-const db = require('./modules/db_modules.js');
-const yt = require('./modules/yt_modules.js');
-const disc = require('./modules/disc_modules.js');
-const track = require('./modules/track_modules.js');
 
-//google storage stuff
+//Action Mods
+const img = require('./modules/img_module.js');         // Image Processing
+const plot = require('./modules/plot_modules.js');      // Plotting
+const db = require('./modules/db_modules.js');          // Database
+const yt = require('./modules/yt_modules.js');          // YouTube
+const twitch = require('./modules/twitch_modules')      // Twitch
+const disc = require('./modules/disc_modules.js');      // Discord
+const track = require('./modules/track_modules.js');    // Tracking
+
+//google storage stuff (Temporary until instagram tracking is available)
 const { GoogleSpreadsheet } = require('google-spreadsheet');
-
-
 
 //Connect to Discord and set status
 client.on('ready', () => {
@@ -38,10 +42,12 @@ client.on('message', msg => {
         
         //initializing new social media
         if(commandContent[1] === "new") {
-            let acceptedResponses = ['instagram', 'youtube'];
+            let acceptedResponses = ['instagram', 'youtube', 'twitch'];
+            //Instagram
             if (commandContent[2] === acceptedResponses[0]) {
                 let newEmbed = cloneDeep(disc.EmbedMsg);
                 msg.channel.send(newEmbed.setTitle("Uh-oh").setDescription("Instagram Tracking currently in Development!"));
+            //Youtube
             } else if (commandContent[2] === acceptedResponses[1]) {
                 if (commandContent[3]) {
                     yt.newAccount(commandContent[3], result => {
@@ -75,6 +81,40 @@ client.on('message', msg => {
                     let newEmbed = cloneDeep(disc.EmbedMsg);
                     msg.channel.send(newEmbed.setTitle("Uh-oh").setDescription("Please include a Channel ID").addField("Your YouTube channel ID is the string if characters at the end of your URL", "Example: youtube.com/channel/**UCXA_lyqyrDsY0CsA-BJHH0g**"));
                 }
+            //Twitch
+            } else if (commandContent[2] === acceptedResponses[2]) {
+                if (commandContent[3]) {
+                    twitch.userName2ID(commandContent[3], result => {
+                        let newEmbed = cloneDeep(disc.EmbedMsg);
+                        msg.channel.send(newEmbed.setTitle(result.display_name).setThumbnail(result.profile_image_url).setDescription('⬆️ Is this the right account? ⬆️').setURL(`https://www.twitch.tv/${result.login}`))
+                        .then(sentEmbed => {
+                            disc.YNReaction(msg, sentEmbed, response => {
+                                if (response) {
+                                    db.newAccount(msg.guild.id, commandContent[2], result.id, (result) => {
+                                        if (result === 1) {
+                                            let newEmbed = cloneDeep(disc.EmbedMsg);
+                                            msg.channel.send(newEmbed.setTitle("Account Added").setDescription("Your account will begin to be tracked daily!"));
+                                            track.ytTrack();
+                                        } else if (result === 0) {
+                                            let newEmbed = cloneDeep(disc.EmbedMsg);
+                                            msg.channel.send(newEmbed.setTitle("Account Not Added").setDescription("You already have an account linked to this Discord server!").addField("|", "Current limit to 1 account per server"));
+                                        } else {
+                                            let newEmbed = cloneDeep(disc.EmbedMsg);
+                                            msg.channel.send(newEmbed.setTitle("Uh-oh").setDescription("There was an error").addField("Contact Us", "Please use .st feedback or contact @AX#1999 regarding your issue"));
+                                        }
+                                    })
+                                }
+                                else {
+                                    let newEmbed = cloneDeep(disc.EmbedMsg);
+                                    msg.channel.send(newEmbed.setTitle("Account Not Added").setDescription("Re-enter command to choose another account"));
+                                }
+                            })
+                        })
+                    })
+                } else {
+                    let newEmbed = cloneDeep(disc.EmbedMsg);
+                    msg.channel.send(newEmbed.setTitle("Uh-oh").setDescription("Please include your login username!").addField("Your Twitch username is the string if characters at the end of your URL", "Example: twitch.tv/**TDS_AX**"));
+                } 
             } else msg.reply(`that is not an accepted response. Accepted responses: \n ${acceptedResponses[0]} \n ${acceptedResponses[1]}`);
         }
         //temporary to ensure that no TDS data is populated in other server's databases
@@ -197,6 +237,7 @@ async function sheetsData(callback) {
 client.login(auth.discordToken);
 
 /* ToDo:
+- Add Twitch put data in to DB
 - Auto tracking daily (midnight)
 - Clean up function. Make better exports, modules, promises (PLEASE PROMISES OMG CALLBACK HELL) Look into classes using this.command stuff.
 - move g-sheet login to another file

@@ -10,5 +10,10 @@ let ytTrack = async function () {
     })
 }
 
+let twitchTrack = async function () {
+
+}
+
 module.exports.ytTrack = ytTrack;
+module.exports.twitchTrack = twitchTrack;
 

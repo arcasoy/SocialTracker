@@ -47,7 +47,8 @@ module.exports = {
                 pool.getConnection((err, con) => {
                     con.query(`USE \`${databases[currentPos]}\``, (err, result) => {
                         if (err) throw (err)
-                        con.query(`SELECT * FROM accounts`, (err, results) => {
+                        con.query(`SELECT * FROM accounts
+                        WHERE social = "youtube"`, (err, results) => {
                             if (err) throw (err);
                             accounts.push(results[0].user)
                             count = count - 1;
