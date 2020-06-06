@@ -1,19 +1,26 @@
 const db = require('./db_modules.js');
 const yt = require('./yt_modules.js');
+const twitch = require('./twitch_modules.js')
 
-let ytTrack = async function () {
-    db.getYT(results => {
-        for (result of results) {
-            //console.log(result);
-            db.insert(result.database, 'youtube', result.subs.toString())
-        }
+let track = async function (social) {
+    db.getAccounts(social, async function (results) {
+        let data = await results.map(async (result) => { // map instead of forEach
+            if (!social) {
+                console.log('No social selected');
+            } else if (social === 'youtube') {
+                const followers = await yt.getData(result.user);
+                return {"database": result.database, "user": result.user, "followers": followers}
+            } else if (social === 'twitch') {
+                const followers = await twitch.getData(result.user)
+                return {"database": result.database, "user": result.user, "followers": followers.total}
+            }
+        });
+        let resolvedResults = await Promise.all(data);
+        for (resolvedResult of resolvedResults) {
+            db.insert(resolvedResult.database, social, resolvedResult.followers.toString())
+        }   
     })
 }
 
-let twitchTrack = async function () {
-
-}
-
-module.exports.ytTrack = ytTrack;
-module.exports.twitchTrack = twitchTrack;
+module.exports.track = track;
 

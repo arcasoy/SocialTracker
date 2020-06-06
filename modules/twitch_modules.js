@@ -36,15 +36,14 @@ module.exports = {
         })
     },
     getData: async function getData(userID, callback) {
-        authenticate
+        return authenticate
         .then(async result => {
-            await fetch(`https://api.twitch.tv/helix/users/follows?to_id=${userID}`, {method: 'GET', headers: {'Client-ID': `${auth.twitchCreds.client_id}`,'Authorization': `Bearer ${await result}`}})
-            .then(async result => {
-                let res = await result.json()
-                console.log(res.total)
-            })
+            const res = await fetch(`https://api.twitch.tv/helix/users/follows?to_id=${userID}`, {method: 'GET', headers: {'Client-ID': `${auth.twitchCreds.client_id}`,'Authorization': `Bearer ${await result}`}})
+            // .then(async result => {
+            //     let res = await result.json()
+            //     return(await res.total)
+            // })
+            return(await res.json())
         })
     }
 }
-
-

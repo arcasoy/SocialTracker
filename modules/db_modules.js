@@ -36,7 +36,7 @@ module.exports = {
             });
         })
     },
-    getYT: async function getYT(callback) {
+    getAccounts: async function getAccounts(social, callback) {
         let accounts = []
 
         async function query(databases, count) {
@@ -48,9 +48,11 @@ module.exports = {
                     con.query(`USE \`${databases[currentPos]}\``, (err, result) => {
                         if (err) throw (err)
                         con.query(`SELECT * FROM accounts
-                        WHERE social = "youtube"`, (err, results) => {
+                        WHERE social = "${social}"`, (err, results) => {
                             if (err) throw (err);
-                            accounts.push(results[0].user)
+                            if (Array.isArray(results) && results.length) {
+                                accounts.push({ 'database': databases[currentPos], 'user': results[0].user })
+                            }
                             count = count - 1;
                             query(databases, count);
                             con.release();
@@ -58,11 +60,7 @@ module.exports = {
                     })
                 })
             } else {
-                let data = accounts.map(async(account) => { // map instead of forEach
-                    const result = await yt.getData(account);
-                    return {"database": databases[accounts.indexOf(account)], "user": account, "subs": result}
-                });
-                callback(resolvedSubsArray = await Promise.all(data)); // resolving all promises
+                callback(accounts);
             }
         }
         pool.getConnection(function(err, con) {

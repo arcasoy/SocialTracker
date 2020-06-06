@@ -87,7 +87,7 @@ client.on('message', msg => {
                                 if (result === 1) {
                                     let newEmbed = cloneDeep(disc.EmbedMsg);
                                     msg.channel.send(newEmbed.setTitle("Account Added").setDescription("Your account will begin to be tracked daily!"));
-                                    track.ytTrack();
+                                    track.track(commandContent[2]);
                                 } else if (result === 0) {
                                     let newEmbed = cloneDeep(disc.EmbedMsg);
                                     msg.channel.send(newEmbed.setTitle("Account Not Added").setDescription(`You already have a ${commandContent[2]} account linked to this Discord server!`).addField("|", "Current limit to 1 account per server"));
@@ -121,7 +121,7 @@ client.on('message', msg => {
                                 if (result === 1) {
                                     let newEmbed = cloneDeep(disc.EmbedMsg);
                                     msg.channel.send(newEmbed.setTitle("Account Added").setDescription("Your account will begin to be tracked daily!"));
-                                    track.ytTrack();
+                                    track.track(commandContent[2]);
                                 } else if (result === 0) {
                                     let newEmbed = cloneDeep(disc.EmbedMsg);
                                     msg.channel.send(newEmbed.setTitle("Account Not Added").setDescription(`You already have a ${commandContent[2]} account linked to this Discord server!`).addField("|", "Current limit to 1 account per server"));
@@ -260,7 +260,6 @@ client.login(auth.discordToken);
 /* ToDo:
 - MSG on join saying to do .st help
 - Explain what a youtube {id} is
-- Add Twitch put data in to DB
 - Auto tracking daily (midnight)
 - Clean up function. Make better exports, modules, promises (PLEASE PROMISES OMG CALLBACK HELL) Look into classes using this.command stuff.
 - move g-sheet login to another file
