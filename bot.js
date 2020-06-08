@@ -269,9 +269,8 @@ client.login(auth.discordToken);
 - Clean up function. Make better exports, modules, promises (PLEASE PROMISES OMG CALLBACK HELL) Look into classes using this.command stuff.
 - move g-sheet login to another file
 - expand to more plot options (projected growth (premium), trendlines(premium), etc)
-- integrate plotting for other socials (instagram, twitch, twitter)
+- integrate plotting for other socials (Twitter & Instagram)
 - add instagram tracking to this bot rather than the other one we are using
-- use discord.js guilds to allow more servers to use! 
 - decrease perms from admin and ensure on join message sends.
 - (add functionality to add multiple accounts/premium feature)
 */
