@@ -6,7 +6,7 @@ const plotlyLogin = {username: auth.plotlyUsername, apiKey: auth.plotlyToken, ho
 const plotly = require('plotly')(plotlyLogin);
 
 module.exports = {
-    change: async function change(data, callback) {     
+    change: async function change(data, social, callback) {     
         var x = data.map(a => ([a.dt].toString().slice(4, 15))).flat(),
             y = []
         y.push(0);
@@ -14,6 +14,8 @@ module.exports = {
             if (element === 0) y.push(element);
             else if (element > 0) y.push(data[element].followers - data[element-1].followers)
         }
+        //getting social settings
+        let socialSet = require('../plotSettings/socialSettings.json');
         //graphing to plotly
         var graphData = [
             {
@@ -21,7 +23,7 @@ module.exports = {
                 y: y,
                 type: "bar",
                 marker: {
-                    color: "#7C68FF"
+                    color: socialSet[social].markerColor
                 }
             }
         ];
@@ -35,10 +37,12 @@ module.exports = {
             callback(path);
         })
     },
-    overall: async function overall(data, callback) {
+    overall: async function overall(data, social, callback) {
         var x = data.map(a => ([a.dt].toString().slice(4, 15))).flat(),
             y = data.map(a => ([a.followers])).flat();
-        //graphing to plotly
+        //getting social settings
+        let socialSet = require('../plotSettings/socialSettings.json');
+            //graphing to plotly
         var graphData = [
             {
                 x: x,
@@ -46,8 +50,9 @@ module.exports = {
                 type: "line",
                 fill: "tozeroy",
                 marker: {
-                    color: "#7C68FF"
-                }
+                    color: socialSet[social].markerColor
+                },
+                fillcolor: socialSet[social].fillColor
             }
         ];
 

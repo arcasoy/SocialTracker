@@ -1,0 +1,10 @@
+{
+    "youtube": {
+        "markerColor": "#FF0000",
+        "fillColor": "#ffcccb"
+    },
+    "twitch": {
+        "markerColor": "#6441a5",
+        "fillColor": "#AEA4F4"
+    }  
+}

@@ -164,7 +164,7 @@ client.on('message', msg => {
                     msg.channel.send(newEmbed.setTitle("Uh-oh").setDescription(`No data for your ${commandContent[2]} account found`).addField("Next Steps:", `Use ".st new ${commandContent[2]} {username}" to start tracking!`));
                 }
                 else if (result !== undefined && result.length > 1) {
-                    plot.change(result, path => {
+                    plot.change(result, commandContent[2], path => {
                         let newEmbed = cloneDeep(disc.EmbedMsg);
                         msg.channel.send(newEmbed.setTitle("Your Daily Follower Change").setDescription(commandContent[2]).attachFiles([path]).setImage(`attachment://${path.slice(0)}`))
                         .then(() => img.clearFile(path))
@@ -187,7 +187,7 @@ client.on('message', msg => {
                     msg.channel.send(newEmbed.setTitle("Uh-oh").setDescription(`No data for your ${commandContent[2]} account found`).addField("Next Steps:", `Use ".st new ${commandContent[2]} {username}" to start tracking!`));
                 }
                 else if (result !== undefined && result.length > 1) {
-                    plot.overall(result, path => {
+                    plot.overall(result, commandContent[2] ,path => {
                         let newEmbed = cloneDeep(disc.EmbedMsg);
                         msg.channel.send(newEmbed.setTitle("Your Overall Follower Growth").setDescription(commandContent[2]).attachFiles([path]).setImage(`attachment://${path.slice(0)}`))
                         .then(() => img.clearFile(path))
@@ -268,7 +268,6 @@ client.login(auth.discordToken);
 - Auto tracking daily (midnight)
 - Clean up function. Make better exports, modules, promises (PLEASE PROMISES OMG CALLBACK HELL) Look into classes using this.command stuff.
 - move g-sheet login to another file
-- Plot different colors for different socials
 - expand to more plot options (projected growth (premium), trendlines(premium), etc)
 - integrate plotting for other socials (instagram, twitch, twitter)
 - add instagram tracking to this bot rather than the other one we are using
