@@ -36,6 +36,12 @@ client.on('ready', () => {
     console.log(`Logged in as ${client.user.tag}!`);
 });
 
+client.on('guildCreate', guild => {
+    let textChannel = guild.channels.cache.filter(channel => channel.type === 'text').first()
+    let newEmbed = cloneDeep(disc.EmbedMsg);
+    textChannel.send(newEmbed.setTitle("Thanks for Inviting Social Tracker!").setDescription("Get ready to expand your social media growth with our daily tracking services!").addField("Next Steps:", 'Use ".st help" to learn the commands and start linking your first account!'));
+})
+
 //Respond to general messages
 client.on('message', msg => {
     //@SocialTracker for bot information
@@ -50,8 +56,8 @@ client.on('message', msg => {
         console.log("Command Recieved using prefix .st");
         let commandContent = msg.content.split(" "); //Creating variable for all command details
         //need a better way to do this below, where [3] isn't lowercased
-        if (commandContent[1]) commandContent[1].toLowerCase();
-        if (commandContent[2]) commandContent[2].toLowerCase();
+        if (commandContent[1]) commandContent[1] = commandContent[1].toLowerCase();
+        if (commandContent[2]) commandContent[2] = commandContent[2].toLowerCase();
         
         //initializing new social media
         if(commandContent[1] === "new") {
@@ -258,7 +264,6 @@ async function sheetsData(callback) {
 client.login(auth.discordToken);
 
 /* ToDo:
-- MSG on join saying to do .st help
 - Explain what a youtube {id} is
 - Auto tracking daily (midnight)
 - Clean up function. Make better exports, modules, promises (PLEASE PROMISES OMG CALLBACK HELL) Look into classes using this.command stuff.
@@ -268,5 +273,6 @@ client.login(auth.discordToken);
 - integrate plotting for other socials (instagram, twitch, twitter)
 - add instagram tracking to this bot rather than the other one we are using
 - use discord.js guilds to allow more servers to use! 
+- decrease perms from admin and ensure on join message sends.
 - (add functionality to add multiple accounts/premium feature)
 */

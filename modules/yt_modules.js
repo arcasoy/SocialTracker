@@ -18,3 +18,8 @@ module.exports = {
         return(res.data.items[0].statistics.subscriberCount);
     }
 }
+
+/*
+ToDo:
+- Get vanity url (youtube.com/user/FaZeClan) to work
+*/
