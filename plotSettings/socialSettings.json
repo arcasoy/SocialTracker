@@ -1,4 +1,8 @@
 {
+    "instagram": {
+        "markerColor": "#F58529",
+        "fillColor": "#ffd1e1"
+    },
     "youtube": {
         "markerColor": "#FF0000",
         "fillColor": "#ffcccb"

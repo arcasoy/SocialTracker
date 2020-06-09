@@ -265,6 +265,7 @@ client.login(auth.discordToken);
 
 /* ToDo:
 - Explain what a youtube {id} is
+- Vilo's suggestions
 - Auto tracking daily (midnight)
 - Clean up function. Make better exports, modules, promises (PLEASE PROMISES OMG CALLBACK HELL) Look into classes using this.command stuff.
 - move g-sheet login to another file

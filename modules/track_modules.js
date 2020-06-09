@@ -19,6 +19,7 @@ let track = async function (social) {
             await Promise.all(data)
             .then(resolvedResults => {
                 for (resolvedResult of resolvedResults) {
+                    //console.log(resolvedResult)
                     db.insert(resolvedResult.database, social, resolvedResult.followers.toString())
                 }  
             })

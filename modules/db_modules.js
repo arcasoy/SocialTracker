@@ -37,43 +37,46 @@ module.exports = {
         })
     },
     getAccounts: async function getAccounts(social, callback) {
-        let accounts = []
-
-        async function query(databases, count) {
-            //Hopeful to get rid of recursive function and promisify the stuff in the if.
-            //probably have to promisfy the con.query function so you can .then() and return the final result to a database.
-            if(count > 0) {
-                currentPos = databases.length - count
-                pool.getConnection((err, con) => {
-                    con.query(`USE \`${databases[currentPos]}\``, (err, result) => {
-                        if (err) throw (err)
-                        con.query(`SELECT * FROM accounts
-                        WHERE social = "${social}"`, (err, results) => {
-                            if (err) throw (err);
-                            if (Array.isArray(results) && results.length) {
-                                accounts.push({ 'database': databases[currentPos], 'user': results[0].user })
-                            }
-                            count = count - 1;
-                            query(databases, count);
-                            con.release();
-                        })
-                    })
-                })
-            } else {
-                callback(accounts);
-            }
-        }
         pool.getConnection(function(err, con) {
             if (err) throw err;
             console.log("Getting Accounts");
             con.query(`SELECT DISTINCT SCHEMA_NAME AS 'database'
             FROM information_schema.SCHEMATA
             WHERE  SCHEMA_NAME NOT IN ('information_schema', 'performance_schema', 'mysql', 'sys')
-            ORDER BY SCHEMA_NAME`, (err, result) => {
+            ORDER BY SCHEMA_NAME`, async (err, result) => {
                 if (err) throw err;
-                databases = result.map(a => ([a.database])).flat()
-                query(databases, databases.length)
-                con.release()                
+                let databases = await result.map(a => ([a.database])).flat();
+                await Promise.allSettled(databases.map( database => {
+                    return new Promise((resolve, reject) => {
+                        pool.getConnection((err, con) => {
+                            con.query(`USE \`${database}\``, (err, result) => {
+                                if (err) reject(new Error(err));
+                                con.query(`SELECT * FROM accounts
+                                WHERE social = "${social}"`, (err, results) => {
+                                    if (err) reject(new Error(err));
+                                    //console.log(results) //Use this one to tell if there are empty results. May be bug in grabbing
+                                    if (Array.isArray(results) && results.length) {
+                                        con.release();
+                                        resolve({ 'database': database, 'user': results[0].user });
+                                    } else {
+                                        reject(new Error(`Empty or undefined Array for Database: ${database}, Social: ${social}`))
+                                    }
+                                })
+                            })
+                        })  
+                    })
+                }))
+                .then(promises => {
+                    con.release();
+                    //console.log(promises) //shows all promises, including those rejected
+
+                    //filter out rejected responses
+                    let res = promises.filter(promise => promise.status === 'fulfilled').map(promise => {
+                        return promise.value;
+                    })
+                    callback(res)
+                })
+                .catch(err => console.log(err))               
             })
         })
     },
