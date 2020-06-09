@@ -86,20 +86,20 @@ client.on('message', msg => {
                         disc.YNReaction(msg, sentEmbed, response => {
                             if (!response) {
                                 let newEmbed = cloneDeep(disc.EmbedMsg);
-                                msg.channel.send(newEmbed.setTitle("Account Not Added").setDescription("Re-enter command to choose another account"));
+                                sentEmbed.edit(newEmbed.setTitle("Account Not Added").setDescription("Re-enter command to choose another account"));
                                 return;
                             }
                             db.newAccount(msg.guild.id, commandContent[2], commandContent[3], (result) => {
                                 if (result === 1) {
                                     let newEmbed = cloneDeep(disc.EmbedMsg);
-                                    msg.channel.send(newEmbed.setTitle("Account Added").setDescription("Your account will begin to be tracked daily!"));
+                                    sentEmbed.edit(newEmbed.setTitle("Account Added").setDescription("Your account will begin to be tracked daily!"));
                                     track.track(commandContent[2]);
                                 } else if (result === 0) {
                                     let newEmbed = cloneDeep(disc.EmbedMsg);
-                                    msg.channel.send(newEmbed.setTitle("Account Not Added").setDescription(`You already have a ${commandContent[2]} account linked to this Discord server!`).addField("|", "Current limit to 1 account per server"));
+                                    sentEmbed.edit(newEmbed.setTitle("Account Not Added").setDescription(`You already have a ${commandContent[2]} account linked to this Discord server!`).addField("|", "Current limit to 1 account per server"));
                                 } else {
                                     let newEmbed = cloneDeep(disc.EmbedMsg);
-                                    msg.channel.send(newEmbed.setTitle("Uh-oh").setDescription("There was an error").addField("Contact Us", "Please use .st feedback or contact @AX#1999 regarding your issue"));
+                                    sentEmbed.edit(newEmbed.setTitle("Uh-oh").setDescription("There was an error").addField("Contact Us", "Please use .st feedback or contact @AX#1999 regarding your issue"));
                                 }
                             })
                             
@@ -120,20 +120,20 @@ client.on('message', msg => {
                         disc.YNReaction(msg, sentEmbed, response => {
                             if (!response) {
                                 let newEmbed = cloneDeep(disc.EmbedMsg);
-                                msg.channel.send(newEmbed.setTitle("Account Not Added").setDescription("Re-enter command to choose another account"));
+                                sentEmbed.edit(newEmbed.setTitle("Account Not Added").setDescription("Re-enter command to choose another account"));
                                 return;
                             }
                             db.newAccount(msg.guild.id, commandContent[2], result.id, (result) => {
                                 if (result === 1) {
                                     let newEmbed = cloneDeep(disc.EmbedMsg);
-                                    msg.channel.send(newEmbed.setTitle("Account Added").setDescription("Your account will begin to be tracked daily!"));
+                                    sentEmbed.edit(newEmbed.setTitle("Account Added").setDescription("Your account will begin to be tracked daily!"));
                                     track.track(commandContent[2]);
                                 } else if (result === 0) {
                                     let newEmbed = cloneDeep(disc.EmbedMsg);
-                                    msg.channel.send(newEmbed.setTitle("Account Not Added").setDescription(`You already have a ${commandContent[2]} account linked to this Discord server!`).addField("|", "Current limit to 1 account per server"));
+                                    sentEmbed.edit(newEmbed.setTitle("Account Not Added").setDescription(`You already have a ${commandContent[2]} account linked to this Discord server!`).addField("|", "Current limit to 1 account per server"));
                                 } else {
                                     let newEmbed = cloneDeep(disc.EmbedMsg);
-                                    msg.channel.send(newEmbed.setTitle("Uh-oh").setDescription("There was an error").addField("Contact Us", "Please use .st feedback or contact @AX#1999 regarding your issue"));
+                                    sentEmbed.edit(newEmbed.setTitle("Uh-oh").setDescription("There was an error").addField("Contact Us", "Please use .st feedback or contact @AX#1999 regarding your issue"));
                                 }
                             })
                         })
@@ -264,8 +264,8 @@ async function sheetsData(callback) {
 client.login(auth.discordToken);
 
 /* ToDo:
-- Explain what a youtube {id} is
-- Vilo's suggestions
+- Expand help menu/add new menus -> Explain what a youtube {id} is
+- remove/replace socials
 - Auto tracking daily (midnight)
 - Clean up function. Make better exports, modules, promises (PLEASE PROMISES OMG CALLBACK HELL) Look into classes using this.command stuff.
 - move g-sheet login to another file
