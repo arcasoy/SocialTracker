@@ -153,24 +153,25 @@ module.exports = {
             })
         })
     },
-    feedback: async function feedback(dbName, table, feedback, user) {
+    feedback: async function feedback(dbNum, table, feedback, user) {
         pool.getConnection((err, con) => {
             if (err) throw err;
             console.log("Inserting Feedback into MySQL Server");
-            con.query(`CREATE DATABASE IF NOT EXISTS \`${dbName}\``, function (err, result) {
+            con.query(`CREATE DATABASE IF NOT EXISTS feedback`, function (err, result) {
                 if (err) throw err;
-                con.query(`USE \`${dbName}\``, (err, result) => {
+                con.query(`USE feedback`, (err, result) => {
                     if (err) throw err;
                     con.query(`CREATE TABLE IF NOT EXISTS ${table} (
                         id INT auto_increment PRIMARY KEY,
                         submitTime DATETIME DEFAULT now(),
                         feedback TEXT NOT NULL,
-                        user TEXT NOT NULL
+                        user TEXT NOT NULL,
+                        serverID TEXT NOT NULL
                     ) ENGINE=InnoDB;`, (err, result) => {
                         if (err) throw err;
                         con.query(
-                            `INSERT INTO ${table} (feedback, user)
-                            SELECT * FROM (SELECT '${feedback}' AS feedback, '${user}' AS user) AS tmp
+                            `INSERT INTO ${table} (feedback, user, serverID)
+                            SELECT * FROM (SELECT '${feedback}' AS feedback, '${user}' AS user, '${dbNum}' as serverID) AS tmp
                             WHERE NOT EXISTS (
                                 SELECT feedback FROM ${table} WHERE feedback = '${feedback}'
                             ) LIMIT 1;`, (err, result) => {
@@ -187,5 +188,5 @@ module.exports = {
 
 /*
 TODO:
-- Make getYT into getAccounts so that any social can be used on it.
+
 */

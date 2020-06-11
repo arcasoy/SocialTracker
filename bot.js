@@ -60,7 +60,7 @@ client.on('message', msg => {
         if (commandContent[2]) commandContent[2] = commandContent[2].toLowerCase();
         
         //initializing new social media
-        if(commandContent[1] === "new") {
+        if(commandContent[1] === "add") {
             let acceptedResponses = ['instagram', 'youtube', 'twitch'];
             
             if (!acceptedResponses.includes(commandContent[2])) {
@@ -142,6 +142,11 @@ client.on('message', msg => {
                 
             }
         }
+        //remove
+        else if (commandContent[1] === "remove") {
+            console.log("in remove")
+        }
+
         //temporary to ensure that no TDS data is populated in other server's databases
         else if (commandContent[1] === "transfer") {
             sheetsData(dataArray => {
@@ -265,6 +270,7 @@ client.login(auth.discordToken);
 
 /* ToDo:
 - Expand help menu/add new menus -> Explain what a youtube {id} is
+- ".st change twitch\" with slash returns error
 - remove/replace socials
 - Auto tracking daily (midnight)
 - Clean up function. Make better exports, modules, promises (PLEASE PROMISES OMG CALLBACK HELL) Look into classes using this.command stuff.
