@@ -21,5 +21,6 @@ module.exports = {
 
 /*
 ToDo:
+- Error handling if ChannelID is wrong on newAccount
 - Get vanity url (youtube.com/user/FaZeClan) to work
 */

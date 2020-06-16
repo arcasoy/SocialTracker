@@ -1,9 +1,10 @@
 const auth = require('../auth/auth.json');
 const fetch = require('node-fetch');
+const path = require('path');
 const fs = require('fs');
 
 let authenticate = new Promise(async (resolve, reject) => {
-    var authFile = await JSON.parse(fs.readFileSync('auth/auth.json'))
+    var authFile = await JSON.parse(fs.readFileSync(path.resolve(__dirname, '../auth/auth.json')))
     await fetch(`https://id.twitch.tv/oauth2/validate`, {headers: {'Authorization': `OAuth ${authFile.twitchCreds.access_token}`}})
     .then(async result => {
         if (result.status === 200) {

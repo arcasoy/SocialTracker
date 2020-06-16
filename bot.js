@@ -162,11 +162,11 @@ client.on('message', msg => {
             db.query(msg.guild.id, commandContent[2], result => {
                 if (result === 'ER_BAD_DB_ERROR') {
                     let newEmbed = cloneDeep(disc.EmbedMsg);
-                    msg.channel.send(newEmbed.setTitle("Uh-oh").setDescription(`No accounts tracked!`).addField("Next Steps:", `Use ".st new {social} {username}" to start tracking an account!`));
+                    msg.channel.send(newEmbed.setTitle("Uh-oh").setDescription(`No accounts tracked!`).addField("Next Steps:", `Use ".st add {social} {username}" to start tracking an account!`));
                 }
                 else if (result === 'ER_NO_SUCH_TABLE') {
                     let newEmbed = cloneDeep(disc.EmbedMsg);
-                    msg.channel.send(newEmbed.setTitle("Uh-oh").setDescription(`No data for your ${commandContent[2]} account found`).addField("Next Steps:", `Use ".st new ${commandContent[2]} {username}" to start tracking!`));
+                    msg.channel.send(newEmbed.setTitle("Uh-oh").setDescription(`No data for your ${commandContent[2]} account found`).addField("Next Steps:", `Use ".st add ${commandContent[2]} {username}" to start tracking!`));
                 }
                 else if (result !== undefined && result.length > 1) {
                     plot.change(result, commandContent[2], path => {
@@ -185,11 +185,11 @@ client.on('message', msg => {
             db.query(msg.guild.id, commandContent[2], result => {
                 if (result === 'ER_BAD_DB_ERROR') {
                     let newEmbed = cloneDeep(disc.EmbedMsg);
-                    msg.channel.send(newEmbed.setTitle("Uh-oh").setDescription(`No accounts tracked!`).addField("Next Steps:", `Use ".st new {social} {username}" to start tracking an account!`));
+                    msg.channel.send(newEmbed.setTitle("Uh-oh").setDescription(`No accounts tracked!`).addField("Next Steps:", `Use ".st add {social} {username}" to start tracking an account!`));
                 }
                 else if (result === 'ER_NO_SUCH_TABLE') {
                     let newEmbed = cloneDeep(disc.EmbedMsg);
-                    msg.channel.send(newEmbed.setTitle("Uh-oh").setDescription(`No data for your ${commandContent[2]} account found`).addField("Next Steps:", `Use ".st new ${commandContent[2]} {username}" to start tracking!`));
+                    msg.channel.send(newEmbed.setTitle("Uh-oh").setDescription(`No data for your ${commandContent[2]} account found`).addField("Next Steps:", `Use ".st add ${commandContent[2]} {username}" to start tracking!`));
                 }
                 else if (result !== undefined && result.length > 1) {
                     plot.overall(result, commandContent[2] ,path => {
@@ -218,9 +218,9 @@ client.on('message', msg => {
             msg.channel.send(newEmbed
                                 .setTitle("Help:")
                                 .setDescription("Help menu is currently in development.")
-                                .addField("Help US Help YOU!", 'Please use ".st feedback {message}" or contact @AX#1999 with your questions!')
+                                .addField("Help US Help YOU!", 'Please use ".st feedback {message}" or tweet @SocialTrackerDB with your questions!')
                                 .addFields(
-                                    { name: ".st new {social} {id}", value: "Start tracking a new social", inline: true },
+                                    { name: ".st add {social} {id/username}", value: "Start tracking a new social", inline: true },
                                     { name: ".st change {social}", value: "Daily Change of your social", inline: true },
                                     { name: ".st overall {social}", value: "Overall Growth of your social", inline: true },
                                     { name: ".st feedback {message}", value: "Give us feedback!", inline: true },
@@ -270,9 +270,10 @@ client.login(auth.discordToken);
 
 /* ToDo:
 - Expand help menu/add new menus -> Explain what a youtube {id} is
+- YouTube video explaining how to use the bot
 - ".st change twitch\" with slash returns error
 - remove/replace socials
-- Auto tracking daily (midnight)
+- Make sure auto tracking is working
 - Clean up function. Make better exports, modules, promises (PLEASE PROMISES OMG CALLBACK HELL) Look into classes using this.command stuff.
 - move g-sheet login to another file
 - expand to more plot options (projected growth (premium), trendlines(premium), etc)

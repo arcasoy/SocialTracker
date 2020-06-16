@@ -20,7 +20,7 @@ let track = async function (social) {
             .then(resolvedResults => {
                 for (resolvedResult of resolvedResults) {
                     //console.log(resolvedResult)
-                    db.insert(resolvedResult.database, social, resolvedResult.followers.toString())
+                    db.insert(resolvedResult.database, social, resolvedResult.followers.toString()) //This isn't the only thing hanging. Might still be hanging tho
                 }  
             })
             .then(resolve("done"))
