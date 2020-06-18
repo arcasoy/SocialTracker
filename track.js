@@ -5,6 +5,4 @@ track.track('youtube')
     track.track('twitch')
     .catch(err => console.log(err))
 })
-.catch(err => {
-    console.log(err)
-})
+.catch(err => console.log(err))

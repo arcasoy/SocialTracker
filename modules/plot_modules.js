@@ -58,6 +58,11 @@ module.exports = {
 
         //plot layout and options
         var layout = require('../plotSettings/overallFollowers.json');
+        layout.yaxis.range[0] = Math.min(...y)
+        layout.yaxis.range[1] = Math.max(...y)
+        if (layout.yaxis.range[0] + 10 > layout.yaxis.range[1]) {
+            layout.yaxis.range[1] = layout.yaxis.range[0] + 10;
+        }
         //insert part where title is changed based on socal media used here
         var graphOptions = {layout: layout, filename: "Follower Overall", fileopt: "overwrite"};
         
@@ -103,4 +108,5 @@ async function createPlot(graphData, graphOptions, callback) {
 
 /* ToDo:
 - Add calls for different chart types that are stored in a folder somewhere
+- Change plot is shifted by a day. Change should be on the day the change occurred, not the day after
 */
