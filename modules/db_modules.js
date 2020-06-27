@@ -35,38 +35,40 @@ module.exports = {
             });
         })
     },
-    removeAccount: async function removeAccount(dbName, social, user, callback) {
+    removeAccount: async function removeAccount(dbName, social) {
         return new Promise((resolve, reject) => {
             pool.getConnection((err, con) => {
-                if (err) throw err;
-                console.log("Connected to MySQL Server");
-                // con.query(`CREATE DATABASE IF NOT EXISTS \`${dbName}\``, function (err, result) {
-                //     if (err) throw err;
-                //     con.query(`USE \`${dbName}\``, (err, result) => {
-                //         if (err) throw err;
-                //         con.query(`CREATE TABLE IF NOT EXISTS accounts (
-                //             id INT auto_increment PRIMARY KEY,
-                //             social TEXT NOT NULL,
-                //             user TEXT NOT NULL
-                //         ) ENGINE=InnoDB;`, (err, result) => {
-                //             if (err) throw err;
-                //             con.query(
-                //                 `INSERT INTO accounts (social, user)
-                //                 SELECT * FROM (SELECT '${social}' AS social, '${user}' AS user) AS tmp
-                //                 WHERE NOT EXISTS (
-                //                     SELECT social FROM accounts WHERE social = '${social}'
-                //                 ) LIMIT 1;`, (err, result) => {
-                //                     if (err) throw err;
-                //                     con.destroy();
-                //                     callback(result.affectedRows);
-                //                 }
-                //             )
-                //         })
-                //     })
-                // });
+                if (err) reject(err);
+                con.query(`USE \`${dbName}\``, (err, result) => {
+                    if (err) reject(err); // need return if they try to do with without any server made.
+                    con.query(`DELETE FROM accounts
+                    WHERE social = '${social}';`, (err, result) => {
+                        if (err) reject(err);
+                        con.query(`DROP TABLE ${social};`, (err, result) => {
+                            if (err) reject(err);
+                            con.destroy();
+                            resolve(result);
+                        })
+                    })
+                })
             })
         })
     },
+    getOneAccount: async function getOneAccount(dbName, social) {
+        return new Promise((resolve, reject) => {
+            pool.getConnection((err, con) => {
+                if (err) reject (err)
+                con.query(`USE \`${dbName}\``, (err, result) => {
+                    if (err) reject(err);
+                    con.query(`SELECT * FROM accounts
+                    WHERE social = '${social}'`, (err, result) => {
+                        if (!result[0]) reject(new Error('No Tracked Account'))
+                        resolve(result[0]);
+                    })
+                })
+            })
+        })
+    }, 
     getAccounts: async function getAccounts(social, callback) {
         pool.getConnection(function(err, con) {
             if (err) throw err;

@@ -25,6 +25,9 @@ const statuses = [
     { activity: { type: 'LISTENING', name: '.st' }, status: 'online' }
 ]
 
+//Currently Accepted Socials
+const acceptedResponses = ['youtube', 'twitch', 'instagram'];
+
 //Connect to Discord and set status
 client.on('ready', () => {
     setInterval(async () => {
@@ -60,22 +63,16 @@ client.on('message', msg => {
         if (commandContent[2]) commandContent[2] = commandContent[2].toLowerCase();
         
         //initializing new social media
-        if(commandContent[1] === "add") {
-            let acceptedResponses = ['instagram', 'youtube', 'twitch'];
-            
+        if(commandContent[1] === "add") {            
             if (!acceptedResponses.includes(commandContent[2])) {
                 let newEmbed = cloneDeep(disc.EmbedMsg);
-                msg.channel.send(newEmbed.setTitle("Uh-oh").setDescription("That is not an accepted social media").addField("Accepted Responses:", `${acceptedResponses[0]} \n ${acceptedResponses[1]} \n ${acceptedResponses[2]}`));
+                msg.channel.send(newEmbed.setTitle("Uh-oh").setDescription("That is not an accepted social media").addField("Accepted Responses:", `${acceptedResponses.join('\n')}`));
             }
-            //Instagram
-            else if (commandContent[2] === acceptedResponses[0]) {
-                let newEmbed = cloneDeep(disc.EmbedMsg);
-                msg.channel.send(newEmbed.setTitle("Uh-oh").setDescription("Instagram Tracking currently in Development!"));
             //Youtube
-            } else if (commandContent[2] === acceptedResponses[1]) {
+            if (commandContent[2] === 'youtube') {
                 if (!commandContent[3]) {
                     let newEmbed = cloneDeep(disc.EmbedMsg);
-                    msg.channel.send(newEmbed.setTitle("Uh-oh").setDescription("Please include a Channel ID").addField("Your YouTube channel ID is the string if characters at the end of your URL", "Example: youtube.com/channel/**UCXA_lyqyrDsY0CsA-BJHH0g**"));
+                    msg.channel.send(newEmbed.setTitle("Uh-oh").setDescription("Please include a Channel ID").addField("Your YouTube channel ID is the string of characters at the end of your URL", "Example: youtube.com/channel/**UCXA_lyqyrDsY0CsA-BJHH0g**"));
                     return;
                 }
                 //make it so that if someone puts in a url, it takes the id from it
@@ -107,7 +104,7 @@ client.on('message', msg => {
                     })
                 })
             //Twitch
-            } else if (commandContent[2] === acceptedResponses[2]) {
+            } else if (commandContent[2] === 'twitch') {
                 if (!commandContent[3]) {
                     let newEmbed = cloneDeep(disc.EmbedMsg);
                     msg.channel.send(newEmbed.setTitle("Uh-oh").setDescription("Please include your Twitch username!").addField("Your Twitch username is the string if characters at the end of your URL", "Example: twitch.tv/**TDS_AX**"));
@@ -139,14 +136,61 @@ client.on('message', msg => {
                         })
                     })
                 })
-                
+            //Instagram   
+            } else if (commandContent[2] === 'instagram') {
+                let newEmbed = cloneDeep(disc.EmbedMsg);
+                msg.channel.send(newEmbed.setTitle("Uh-oh").setDescription("Instagram Tracking currently in Development!"));
             }
         }
-        //remove
+        //Remove account
         else if (commandContent[1] === "remove") {
-            console.log("in remove")
+            //If the social to remove isn't included
+            if (!commandContent[2]) {
+                let newEmbed = cloneDeep(disc.EmbedMsg);
+                msg.channel.send(newEmbed.setTitle("Uh-oh").setDescription("Please include what social you would like to remove!").addField("Accepted Responses:", `${acceptedResponses.join('\n')}`));
+                return;
+            }
+            //Get the account from the social
+            db.getOneAccount(msg.guild.id, commandContent[2])
+            .then(result => {
+                let newEmbed = cloneDeep(disc.EmbedMsg);
+                msg.channel.send(newEmbed.setTitle("Warning!").setDescription(`ALL DATA WILL BE LOST`).addField(`All previously tracked data will be deleted`, `If you wish to track two accounts, please wait until additional tracking (Premium) is released!`).addField("Are you sure you want to remove this account?", "Select ✅ to confirm removal and ❌ to cancel removal"))
+                .then(sentEmbed => {
+                    disc.YNReaction(msg, sentEmbed, response => {
+                        if (!response) {
+                            let newEmbed = cloneDeep(disc.EmbedMsg);
+                            sentEmbed.edit(newEmbed.setTitle("Account Not Deleted").setDescription("Data is maintained"));
+                            return;
+                        }
+                        db.removeAccount(msg.guild.id, commandContent[2])
+                        .then(() => {
+                            let newEmbed = cloneDeep(disc.EmbedMsg);
+                            sentEmbed.edit(newEmbed.setTitle(`${commandContent[2]} data deleted`).setDescription(`You may now add another account to track with ".st add {social}"`));
+                            return;
+                        })
+                        .catch(err => {
+                            if (err.code === 'ER_BAD_TABLE_ERROR' || 'ER_NO_SUCH_TABLE') {
+                                let newEmbed = cloneDeep(disc.EmbedMsg);
+                                msg.channel.send(newEmbed.setTitle("Uh-oh").setDescription(`You are not tracking any ${commandContent[2]} account!`).addField("To begin tracking:", `Use ".st add {social}"`));
+                                return;
+                            } else {
+                                let newEmbed = cloneDeep(disc.EmbedMsg);
+                                msg.channel.send(newEmbed.setTitle("Uh-oh").setDescription(`We ran into an unknown error`).addField('Help Us Improve', `Use ".st feedback {message}" and describe what commands created this error`));
+                                console.log(err);
+                                return;
+                            }
+                        })
+                    })
+                })
+            })
+            .catch(err => {
+                if (err.message === 'No Tracked Account') {
+                    let newEmbed = cloneDeep(disc.EmbedMsg);
+                    msg.channel.send(newEmbed.setTitle("Uh-oh").setDescription(`You are not tracking any ${commandContent[2]} account!`).addField("To begin tracking:", `Use ".st add {social}"`));
+                    return;
+                }
+            })
         }
-
         //temporary to ensure that no TDS data is populated in other server's databases
         else if (commandContent[1] === "transfer") {
             sheetsData(dataArray => {
@@ -159,12 +203,18 @@ client.on('message', msg => {
             });
         }
         else if (commandContent[1] === "change") {
+            if (!acceptedResponses.includes(commandContent[2])) {
+                let newEmbed = cloneDeep(disc.EmbedMsg);
+                msg.channel.send(newEmbed.setTitle("Uh-oh").setDescription(`${commandContent[2]} is not an accepted social media`).addField("Accepted Responses:", `${acceptedResponses.join('\n')}`));
+                return;
+            }
             db.query(msg.guild.id, commandContent[2], result => {
                 if (result === 'ER_BAD_DB_ERROR') {
                     let newEmbed = cloneDeep(disc.EmbedMsg);
                     msg.channel.send(newEmbed.setTitle("Uh-oh").setDescription(`No accounts tracked!`).addField("Next Steps:", `Use ".st add {social} {username}" to start tracking an account!`));
                 }
                 else if (result === 'ER_NO_SUCH_TABLE') {
+                    //put a response in here if their call was 'yotueube' rather than 'youtube'. Check accepted responses
                     let newEmbed = cloneDeep(disc.EmbedMsg);
                     msg.channel.send(newEmbed.setTitle("Uh-oh").setDescription(`No data for your ${commandContent[2]} account found`).addField("Next Steps:", `Use ".st add ${commandContent[2]} {username}" to start tracking!`));
                 }
@@ -182,12 +232,18 @@ client.on('message', msg => {
             });
         }
         else if (commandContent[1] === "overall") {
+            if (!acceptedResponses.includes(commandContent[2])) {
+                let newEmbed = cloneDeep(disc.EmbedMsg);
+                msg.channel.send(newEmbed.setTitle("Uh-oh").setDescription(`${commandContent[2]} is not an accepted social media`).addField("Accepted Responses:", `${acceptedResponses.join('\n')}`));
+                return;
+            }
             db.query(msg.guild.id, commandContent[2], result => {
                 if (result === 'ER_BAD_DB_ERROR') {
                     let newEmbed = cloneDeep(disc.EmbedMsg);
                     msg.channel.send(newEmbed.setTitle("Uh-oh").setDescription(`No accounts tracked!`).addField("Next Steps:", `Use ".st add {social} {username}" to start tracking an account!`));
                 }
                 else if (result === 'ER_NO_SUCH_TABLE') {
+                    //put a response in here if their call was 'yotueube' rather than 'youtube'. Check accepted responses
                     let newEmbed = cloneDeep(disc.EmbedMsg);
                     msg.channel.send(newEmbed.setTitle("Uh-oh").setDescription(`No data for your ${commandContent[2]} account found`).addField("Next Steps:", `Use ".st add ${commandContent[2]} {username}" to start tracking!`));
                 }
@@ -216,11 +272,11 @@ client.on('message', msg => {
         else if (commandContent[1] === 'help') {
             let newEmbed = cloneDeep(disc.EmbedMsg);
             msg.channel.send(newEmbed
-                                .setTitle("Help:")
-                                .setDescription("Help menu is currently in development.")
-                                .addField("Help US Help YOU!", 'Please use ".st feedback {message}" or tweet @SocialTrackerDB with your questions!')
+                                .setTitle("Help Menu:")
+                                .setDescription('Please use ".st feedback {message}" or tweet @SocialTrackerDB with your questions!')
                                 .addFields(
                                     { name: ".st add {social} {id/username}", value: "Start tracking a new social", inline: true },
+                                    { name: ".st remove {social}", value: "Stop tracking and delete data of a social", inline: true },
                                     { name: ".st change {social}", value: "Daily Change of your social", inline: true },
                                     { name: ".st overall {social}", value: "Overall Growth of your social", inline: true },
                                     { name: ".st feedback {message}", value: "Give us feedback!", inline: true },
@@ -272,10 +328,10 @@ client.login(auth.discordToken);
 - Expand help menu/add new menus -> Explain what a youtube {id} is
 - YouTube video explaining how to use the bot
 - ".st change twitch\" with slash returns error
-- remove/replace socials
-- Make sure auto tracking is working
+- Error logging
 - Clean up function. Make better exports, modules, promises (PLEASE PROMISES OMG CALLBACK HELL) Look into classes using this.command stuff.
 - move g-sheet login to another file
+- name changes? transfer data from old name to new one?
 - expand to more plot options (projected growth (premium), trendlines(premium), etc)
 - integrate plotting for other socials (Twitter & Instagram)
 - add instagram tracking to this bot rather than the other one we are using
