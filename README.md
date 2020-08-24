@@ -23,9 +23,9 @@ Goal: To track YOUR social media growth and update your team through beautiful g
 ## Future Features:
 * New Plots:
   * Customized Graphs (From 2 to ALL data points)
-  * Projected Growth (Premium)
+  * Projected Growth
   * Trendline Integration
-  * Growth Tips (Premium)
+  * Growth Tips
 * Updated UX!
 * Sending Growth Updates to Your Desired Channels at set intervals!
 * Use APIs to expand to Twitter and Instagram Data!
