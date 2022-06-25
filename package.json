@@ -25,7 +25,7 @@
     "lodash": "^4.17.15",
     "mysql": "^2.18.1",
     "mysql-client": "^0.3.0",
-    "node-fetch": "^2.6.0",
+    "node-fetch": "^2.6.7",
     "plotly": "^1.0.6"
   }
 }
